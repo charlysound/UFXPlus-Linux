@@ -15,17 +15,17 @@ doc=json.load(open(sys.argv[1], encoding='utf-8'))
 for name in ('driver','mixer'):
     item=doc['components'][name]
     package=item['package']
-    print('\t'.join((name, item['repository'], item['tag'], package['file'], package['sha256'], package['asset_url'],
+    print('\t'.join((name, package['file'], package['sha256'],
                      package['copyright_path'], package['name'], package['version'],
                      package['architecture'])))
 PY
 
-command -v gh >/dev/null || { echo "GitHub CLI (gh) is required to fetch release assets reliably" >&2; exit 1; }
-
-while IFS=$'\t' read -r component repository tag file expected url copyright package version architecture; do
+while IFS=$'\t' read -r component file expected copyright package version architecture; do
     [[ "$file" =~ ^[A-Za-z0-9._+-]+_amd64\.deb$ ]] || { echo "Unsafe package filename: $file" >&2; exit 1; }
-    echo "Fetching pinned $component package $version"
-    gh release download "$tag" --repo "$repository" --pattern "$file" --dir "$STAGE/packages"
+    source="$ROOT/vendor/$file"
+    [[ -f "$source" ]] || { echo "Missing vendored pinned package: $source" >&2; exit 1; }
+    echo "Adding pinned $component package $version"
+    cp -- "$source" "$STAGE/packages/$file"
     actual=$(sha256sum -- "$STAGE/packages/$file" | cut -d ' ' -f1)
     [[ "$actual" == "$expected" ]] || { echo "SHA-256 mismatch for $file" >&2; exit 1; }
     [[ "$(dpkg-deb -f "$STAGE/packages/$file" Package)" == "$package" ]]

@@ -18,6 +18,11 @@ The exact release tags, commits, assets and SHA-256 values are in
 Mint 22 or Ubuntu 24.04 amd64. Other distributions and architectures are not
 supported by this bundle.
 
+The two pinned Debian packages are included under [`vendor/`](vendor/). Their
+checksums were checked against the component releases; this keeps the public
+bundle build reproducible without granting this repository access to the
+private component source repositories.
+
 ## Install
 
 Download and extract the suite archive from the [UFX+ Linux releases](https://github.com/charlysound/UFXPlus-Linux/releases),
