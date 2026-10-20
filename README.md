@@ -48,10 +48,12 @@ OSCmix companion, and open the driver panel. Declining leaves service state
 unchanged. OSCmix's existing user-session autostart integration remains
 available when its companion service is enabled.
 
-The driver's Debian post-install hook can compile its optional DKMS module for
-the running kernel when DKMS is already installed. That step needs matching
-kernel headers and is performed by APT during package configuration. The
-package reloads udev rules but does not reset or retrigger USB devices.
+The driver's post-install hook attempts an optional DKMS build only when
+`/usr/src/ufxplus-pcm-0.1.1/dkms.conf` is already present. The pinned driver
+package does not include that source tree, so this suite does not build or
+install a kernel module; DKMS and matching kernel headers are not prerequisites
+for this package transaction. The package reloads udev rules but does not reset
+or retrigger USB devices.
 
 The installer preserves these user data directories when present:
 
