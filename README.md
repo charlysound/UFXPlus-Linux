@@ -92,11 +92,18 @@ settings are not removed by package removal.
 
 This is community packaging, not an official RME driver. The initial bundle
 combines two individually published releases; the suite's build checks verify
-package identity, archive contents and checksums. CI does not test USB audio,
-install or update the packages on a virtual machine, or establish audio
-qualification for this combined release. Those results remain explicitly
-unverified until evidence is added. Component release notes describe their
-separate qualification and limitations.
+package identity, archive contents and checksums. CI does not install the
+packages into a VM or test USB audio.
+
+A manual Ubuntu 24.04.5 amd64 VM test passed fresh installation, repeating the
+installer, package removal and reinstallation, plus backup and restoration of
+the four component settings directories. The latest bundle also passed
+`--verify-only` and `--preflight-only` in that VM. Mint 22's signed ISO was
+verified, but its live installer stopped at an interactive multimedia-codecs
+screen; Mint installation and suite testing remain unverified. Upgrades or
+rollbacks between different suite versions have not been tested. No USB audio,
+X11/Wayland GUI, Secure Boot, or physical UFX+ qualification is claimed.
+Component release notes describe their separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.
 Review the source repositories and release notes before installation:
