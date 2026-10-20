@@ -88,7 +88,11 @@ if PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
    UFXPLUS_BACKUP_DIR="$TMP/home/backups" "$BUNDLE/install.sh" >"$TMP/downgrade-refusal" 2>&1; then
     echo "Downgrade without explicit opt-in was accepted" >&2; exit 1
 fi
-grep -Fq -- '--allow-downgrade' "$TMP/downgrade-refusal"
+if ! grep -Fq -- '--allow-downgrade' "$TMP/downgrade-refusal"; then
+    cat "$TMP/downgrade-refusal" >&2
+    echo "Downgrade refusal did not explain the explicit rollback option" >&2
+    exit 1
+fi
 PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
 XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
 UFXPLUS_BACKUP_DIR="$TMP/home/backups" \
