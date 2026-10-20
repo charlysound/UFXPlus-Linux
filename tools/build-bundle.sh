@@ -15,15 +15,17 @@ doc=json.load(open(sys.argv[1], encoding='utf-8'))
 for name in ('driver','mixer'):
     item=doc['components'][name]
     package=item['package']
-    print('\t'.join((name, package['file'], package['sha256'], package['asset_url'],
+    print('\t'.join((name, item['repository'], item['tag'], package['file'], package['sha256'], package['asset_url'],
                      package['copyright_path'], package['name'], package['version'],
                      package['architecture'])))
 PY
 
-while IFS=$'\t' read -r component file expected url copyright package version architecture; do
+command -v gh >/dev/null || { echo "GitHub CLI (gh) is required to fetch release assets reliably" >&2; exit 1; }
+
+while IFS=$'\t' read -r component repository tag file expected url copyright package version architecture; do
     [[ "$file" =~ ^[A-Za-z0-9._+-]+_amd64\.deb$ ]] || { echo "Unsafe package filename: $file" >&2; exit 1; }
     echo "Fetching pinned $component package $version"
-    curl --fail --location --retry 3 --silent --show-error "$url" -o "$STAGE/packages/$file"
+    gh release download "$tag" --repo "$repository" --pattern "$file" --dir "$STAGE/packages"
     actual=$(sha256sum -- "$STAGE/packages/$file" | cut -d ' ' -f1)
     [[ "$actual" == "$expected" ]] || { echo "SHA-256 mismatch for $file" >&2; exit 1; }
     [[ "$(dpkg-deb -f "$STAGE/packages/$file" Package)" == "$package" ]]

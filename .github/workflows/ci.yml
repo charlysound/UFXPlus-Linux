@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build pinned suite archive
         run: ./tools/build-bundle.sh dist
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Verify suite installer
         run: ./tests/test-installer.sh
       - name: Verify archive checksum and contents
