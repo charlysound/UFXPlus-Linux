@@ -82,7 +82,11 @@ cat >"$FAKE_BIN/systemctl" <<'EOF'
 if [[ "$*" == *"is-active"* ]]; then exit 1; fi
 exit 0
 EOF
-chmod +x "$FAKE_BIN/dpkg-query" "$FAKE_BIN/sudo" "$FAKE_BIN/systemctl"
+cat >"$FAKE_BIN/pgrep" <<'EOF'
+#!/usr/bin/env bash
+exit 1
+EOF
+chmod +x "$FAKE_BIN/dpkg-query" "$FAKE_BIN/sudo" "$FAKE_BIN/systemctl" "$FAKE_BIN/pgrep"
 if PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
    XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
    UFXPLUS_BACKUP_DIR="$TMP/home/backups" UFXPLUS_OS_RELEASE="$TMP/mint-release" \
