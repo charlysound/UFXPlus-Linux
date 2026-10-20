@@ -35,7 +35,7 @@
         "architecture": "amd64",
         "file": "oscmix-ufxplus_0.2.0-alpha.26+menus.2_amd64.deb",
         "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.26%2Bmenus.2/oscmix-ufxplus_0.2.0-alpha.26%2Bmenus.2_amd64.deb",
-        "sha256": "656eb5d40c17e9d4d99e2d401e9d4b60e1de4c458f8ec984f46ccd75666e964d",
+        "sha256": "656eb5d40c17e9d4d99a3b308b934b60e1de4c458f8ec984f46ccd75666e964d",
         "copyright_path": "usr/share/doc/oscmix-ufxplus/copyright"
       }
     }
