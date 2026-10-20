@@ -85,7 +85,8 @@ EOF
 chmod +x "$FAKE_BIN/dpkg-query" "$FAKE_BIN/sudo" "$FAKE_BIN/systemctl"
 if PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
    XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
-   UFXPLUS_BACKUP_DIR="$TMP/home/backups" "$BUNDLE/install.sh" >"$TMP/downgrade-refusal" 2>&1; then
+   UFXPLUS_BACKUP_DIR="$TMP/home/backups" UFXPLUS_OS_RELEASE="$TMP/mint-release" \
+   DISPLAY= WAYLAND_DISPLAY= "$BUNDLE/install.sh" >"$TMP/downgrade-refusal" 2>&1; then
     echo "Downgrade without explicit opt-in was accepted" >&2; exit 1
 fi
 if ! grep -Fq -- '--allow-downgrade' "$TMP/downgrade-refusal"; then
@@ -95,7 +96,8 @@ if ! grep -Fq -- '--allow-downgrade' "$TMP/downgrade-refusal"; then
 fi
 PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
 XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
-UFXPLUS_BACKUP_DIR="$TMP/home/backups" \
+UFXPLUS_BACKUP_DIR="$TMP/home/backups" UFXPLUS_OS_RELEASE="$TMP/mint-release" \
+DISPLAY= WAYLAND_DISPLAY= \
     "$BUNDLE/install.sh" --allow-downgrade >"$TMP/downgrade-allowed" 2>&1
 grep -Fq -- '--allow-downgrades' "$TMP/apt-args"
 
