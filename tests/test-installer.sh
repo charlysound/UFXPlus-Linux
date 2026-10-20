@@ -60,6 +60,41 @@ tar -tzf "$backup" | grep -Fq 'XDG_CONFIG_HOME/oscmix/appearance.ini'
 tar -tzf "$backup" | grep -Fq 'XDG_STATE_HOME/oscmix/ufxplus-native-matrix.ini'
 tar -tzf "$backup" | grep -Fq 'XDG_DATA_HOME/oscmix/workspaces'
 
+# A newer installed version is rejected by default; an explicit rollback from
+# this checksum-verified archive must pass APT's downgrade authorization.
+FAKE_BIN="$TMP/fake-bin"
+mkdir -p "$FAKE_BIN"
+cat >"$FAKE_BIN/dpkg-query" <<'EOF'
+#!/usr/bin/env bash
+case "${@: -1}" in
+    ufxplus-driver) echo '9.9.0' ;;
+    oscmix-ufxplus) echo '9.9.0' ;;
+    *) exit 1 ;;
+esac
+EOF
+cat >"$FAKE_BIN/sudo" <<EOF
+#!/usr/bin/env bash
+printf '%s\\n' "\$*" >>"$TMP/apt-args"
+[[ " \$* " == *" --allow-downgrades "* ]]
+EOF
+cat >"$FAKE_BIN/systemctl" <<'EOF'
+#!/usr/bin/env bash
+if [[ "$*" == *"is-active"* ]]; then exit 1; fi
+exit 0
+EOF
+chmod +x "$FAKE_BIN/dpkg-query" "$FAKE_BIN/sudo" "$FAKE_BIN/systemctl"
+if PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
+   XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
+   UFXPLUS_BACKUP_DIR="$TMP/home/backups" "$BUNDLE/install.sh" >"$TMP/downgrade-refusal" 2>&1; then
+    echo "Downgrade without explicit opt-in was accepted" >&2; exit 1
+fi
+grep -Fq -- '--allow-downgrade' "$TMP/downgrade-refusal"
+PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
+XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
+UFXPLUS_BACKUP_DIR="$TMP/home/backups" \
+    "$BUNDLE/install.sh" --allow-downgrade >"$TMP/downgrade-allowed" 2>&1
+grep -Fq -- '--allow-downgrades' "$TMP/apt-args"
+
 cp "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb" "$TMP/driver.deb"
 printf '\ncorruption\n' >>"$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb"
 if "$BUNDLE/install.sh" --verify-only >/dev/null 2>&1; then
@@ -67,4 +102,4 @@ if "$BUNDLE/install.sh" --verify-only >/dev/null 2>&1; then
 fi
 mv "$TMP/driver.deb" "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb"
 
-echo "Installer tests passed (verification, supported OS gate, backup preservation, corruption rejection)."
+echo "Installer tests passed (verification, supported OS gate, backup preservation, downgrade opt-in, corruption rejection)."

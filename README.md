@@ -82,11 +82,14 @@ access the UFX+. `--preflight-only` accepts only Linux Mint 22 and Ubuntu
 
 Keep the previous suite archive until the new installation has been checked.
 To return to that exact pair, stop the user services and run the previous
-archive's `install.sh`; it installs both previous packages together. The
-settings backup remains available if an application ever needs its previous
-configuration restored. To remove a first-time installation, use APT with the
-package names shown by `dpkg-query -W ufxplus-driver oscmix-ufxplus`; user
-settings are not removed by package removal.
+archive's `./install.sh --allow-downgrade`. The option applies only to that
+verified archive: the installer still checks every checksum and package
+identity, saves settings, and installs both packages in one APT transaction.
+Without the explicit option, the installer refuses to replace a newer installed
+version. The settings backup remains available if an application ever needs
+its previous configuration restored. To remove a first-time installation,
+use APT with the package names shown by `dpkg-query -W ufxplus-driver
+oscmix-ufxplus`; user settings are not removed by package removal.
 
 ## Scope and qualification
 
@@ -103,10 +106,10 @@ post-reboot service checks passed for the pinned pair above. The Mint archive
 SHA-256 tested was `ea1246180a92c49c6422b91c68b6f21b3de377df9227fec0457b8f477d103f44`.
 
 An upgrade from a different suite version and a rollback to a previous suite
-archive have not been tested. The pinned driver package contains no DKMS source,
-so no kernel module was built or qualified. No USB audio, X11/Wayland application
-GUI, Secure Boot, or physical UFX+ qualification is claimed. Component release
-notes describe their separate qualification and limitations.
+archive have not yet been tested. The pinned driver package contains no DKMS
+source, so no kernel module was built or qualified. No USB audio, X11/Wayland
+application GUI, Secure Boot, or physical UFX+ qualification is claimed.
+Component release notes describe their separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.
 Review the source repositories and release notes before installation:

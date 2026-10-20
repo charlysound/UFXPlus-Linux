@@ -3,12 +3,21 @@ set -euo pipefail
 
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 MANIFEST="$ROOT/components.lock.json"
-MODE=${1:-install}
+ALLOW_DOWNGRADE=0
+MODE=install
+if [[ $# -gt 0 ]]; then
+    case "$1" in
+        --allow-downgrade) ALLOW_DOWNGRADE=1 ;;
+        *) MODE=$1 ;;
+    esac
+    shift
+fi
+[[ $# -eq 0 ]] || { echo "UFX+ Linux installer: unexpected argument $1" >&2; exit 1; }
 
 fail() { echo "UFX+ Linux installer: $*" >&2; exit 1; }
 usage() {
     cat <<'EOF'
-Usage: ./install.sh [--verify-only|--preflight-only|--backup-only|--help]
+Usage: ./install.sh [--verify-only|--preflight-only|--backup-only|--allow-downgrade|--help]
 
 Default mode installs the pinned driver and TotalMixLike packages in one APT
 transaction, then offers optional per-user service activation.
@@ -129,13 +138,17 @@ done
 mapfile -t ROWS < <(manifest_rows)
 DRIVER_FILE=$(printf '%s\n' "${ROWS[0]}" | cut -f2)
 MIXER_FILE=$(printf '%s\n' "${ROWS[1]}" | cut -f2)
+APT_DOWNGRADE_ARGS=()
+if [[ "$ALLOW_DOWNGRADE" == 1 ]]; then APT_DOWNGRADE_ARGS+=(--allow-downgrades); fi
 for pair in "ufxplus-driver:$DRIVER_FILE" "oscmix-ufxplus:$MIXER_FILE"; do
     name=${pair%%:*}; file=${pair#*:}
     installed=$(dpkg-query -W -f='${Version}' "$name" 2>/dev/null || true)
     if [[ -n "$installed" ]]; then
         expected=$(dpkg-deb -f "$ROOT/packages/$file" Version)
         if dpkg --compare-versions "$installed" gt "$expected"; then
-            fail "$name $installed is newer than this suite's $expected; refusing a downgrade"
+            if [[ "$ALLOW_DOWNGRADE" != 1 ]]; then
+                fail "$name $installed is newer than this suite's $expected; rerun this verified archive with --allow-downgrade only to intentionally roll back"
+            fi
         fi
     fi
 done
@@ -152,11 +165,11 @@ BACKUP=$(backup_settings) || fail "could not back up user settings"
 } | tee -a "$LOG"
 
 if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v pkexec >/dev/null; then
-    if ! pkexec /usr/bin/apt-get install -y "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
+    if ! pkexec /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
         fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
     fi
 elif command -v sudo >/dev/null; then
-    if ! sudo /usr/bin/apt-get install -y "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
+    if ! sudo /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
         fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
     fi
 else
