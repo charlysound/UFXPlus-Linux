@@ -95,15 +95,18 @@ combines two individually published releases; the suite's build checks verify
 package identity, archive contents and checksums. CI does not install the
 packages into a VM or test USB audio.
 
-A manual Ubuntu 24.04.5 amd64 VM test passed fresh installation, repeating the
-installer, package removal and reinstallation, plus backup and restoration of
-the four component settings directories. The latest bundle also passed
-`--verify-only` and `--preflight-only` in that VM. Mint 22's signed ISO was
-verified, but its live installer stopped at an interactive multimedia-codecs
-screen; Mint installation and suite testing remain unverified. Upgrades or
-rollbacks between different suite versions have not been tested. No USB audio,
-X11/Wayland GUI, Secure Boot, or physical UFX+ qualification is claimed.
-Component release notes describe their separate qualification and limitations.
+Manual VM installation is verified on Linux Mint 22 Wilma amd64 (kernel
+`6.8.0-38-generic`) and Ubuntu 24.04.5 amd64 (kernel `6.8.0-147-generic`). On
+both systems, fresh install, repeat install, removal/reinstall, backup and
+restoration of four settings sentinels, package/dependency integrity, and
+post-reboot service checks passed for the pinned pair above. The Mint archive
+SHA-256 tested was `ea1246180a92c49c6422b91c68b6f21b3de377df9227fec0457b8f477d103f44`.
+
+An upgrade from a different suite version and a rollback to a previous suite
+archive have not been tested. The pinned driver package contains no DKMS source,
+so no kernel module was built or qualified. No USB audio, X11/Wayland application
+GUI, Secure Boot, or physical UFX+ qualification is claimed. Component release
+notes describe their separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.
 Review the source repositories and release notes before installation:
