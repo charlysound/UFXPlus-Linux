@@ -39,6 +39,9 @@ MIDI bridge or mixer is running. Quit the mixer and stop the user services
 before retrying. The backup location is printed and recorded in the install
 log under `~/.local/state/ufxplus-linux/`.
 
+From a graphical desktop session, package authorization uses `pkexec`; in a
+headless session it uses `sudo` in the terminal.
+
 Installation does not start audio services as root. At the end, the installer
 offers to enable and start the driver for the current user, enable the optional
 OSCmix companion, and open the driver panel. Declining leaves service state

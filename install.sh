@@ -151,14 +151,16 @@ BACKUP=$(backup_settings) || fail "could not back up user settings"
     echo "Installing packages in one APT transaction. The driver package may build its optional DKMS module for the running kernel."
 } | tee -a "$LOG"
 
-if command -v pkexec >/dev/null; then
+if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v pkexec >/dev/null; then
     if ! pkexec /usr/bin/apt-get install -y "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
         fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
     fi
-else
+elif command -v sudo >/dev/null; then
     if ! sudo /usr/bin/apt-get install -y "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
         fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
     fi
+else
+    fail "no usable graphical pkexec session or sudo is available for the package transaction"
 fi
 
 systemctl --user daemon-reload 2>&1 | tee -a "$LOG" || echo "Could not reload the user systemd manager; log: $LOG"
