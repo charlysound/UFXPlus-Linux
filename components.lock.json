@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "suite": {
+    "version": "0.1.0-alpha.1",
+    "architecture": "amd64",
+    "supported_systems": [
+      {"id": "linuxmint", "version_id": "22"},
+      {"id": "ubuntu", "version_id": "24.04"}
+    ]
+  },
+  "components": {
+    "driver": {
+      "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
+      "tag": "v0.1.0-alpha.11+alsa.6",
+      "commit": "7f868382d9be9ee99445d47f2d7439d6c978ff62",
+      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.11%2Balsa.6",
+      "package": {
+        "name": "ufxplus-driver",
+        "version": "0.1.0~alpha.11+alsa.6",
+        "architecture": "amd64",
+        "file": "ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb",
+        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.11%2Balsa.6/ufxplus-driver_0.1.0-alpha.11%2Balsa.6_amd64.deb",
+        "sha256": "aafd2948d20d9e5b2ab874efbdf36e23cf5e45d6f175f123f8fadc5e97e6e9b6",
+        "copyright_path": "usr/share/doc/ufxplus-driver/copyright"
+      }
+    },
+    "mixer": {
+      "repository": "charlysound/TotalMixLike",
+      "tag": "v0.2.0-alpha.26+menus.2",
+      "commit": "9890f9d6055b76dff20c3f4492a7e77b321008be",
+      "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.26%2Bmenus.2",
+      "package": {
+        "name": "oscmix-ufxplus",
+        "version": "0.2.0~alpha.26+menus.2",
+        "architecture": "amd64",
+        "file": "oscmix-ufxplus_0.2.0-alpha.26+menus.2_amd64.deb",
+        "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.26%2Bmenus.2/oscmix-ufxplus_0.2.0-alpha.26%2Bmenus.2_amd64.deb",
+        "sha256": "656eb5d40c17e9d4d99e2d401e9d4b60e1de4c458f8ec984f46ccd75666e964d",
+        "copyright_path": "usr/share/doc/oscmix-ufxplus/copyright"
+      }
+    }
+  }
+}
