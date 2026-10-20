@@ -41,7 +41,7 @@ done <"$WORK/assets.tsv"
 cp -- "$ROOT/README.md" "$ROOT/components.lock.json" "$ROOT/install.sh" "$STAGE/"
 suite_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["suite"]["version"])' "$ROOT/components.lock.json")
 printf '%s\n' "$suite_version" >"$STAGE/metadata/suite-version"
-(cd "$STAGE" && find . -type f -print0 | sort -z | xargs -0 sha256sum >SHA256SUMS)
+(cd "$STAGE" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum >SHA256SUMS)
 
 archive="$OUT/ufxplus-linux-suite_${suite_version}_amd64.tar.gz"
 tar --sort=name --owner=0 --group=0 --numeric-owner --mtime='@0' -C "$WORK" -czf "$archive" ufxplus-linux-suite

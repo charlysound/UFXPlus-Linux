@@ -23,6 +23,11 @@ jobs:
           cd dist
           sha256sum --check SHA256SUMS
           archive=$(find . -maxdepth 1 -name 'ufxplus-linux-suite_*_amd64.tar.gz' -print -quit)
+          tar -xzf "$archive"
+          cd ufxplus-linux-suite
+          sha256sum --check --strict SHA256SUMS
+          ./install.sh --verify-only
+          cd ..
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/ufxplus-driver_'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/oscmix-ufxplus_'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/licenses/driver-copyright'
