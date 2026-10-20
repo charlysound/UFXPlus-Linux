@@ -102,14 +102,19 @@ Manual VM installation is verified on Linux Mint 22 Wilma amd64 (kernel
 `6.8.0-38-generic`) and Ubuntu 24.04.5 amd64 (kernel `6.8.0-147-generic`). On
 both systems, fresh install, repeat install, removal/reinstall, backup and
 restoration of four settings sentinels, package/dependency integrity, and
-post-reboot service checks passed for the pinned pair above. The Mint archive
-SHA-256 tested was `ea1246180a92c49c6422b91c68b6f21b3de377df9227fec0457b8f477d103f44`.
+post-reboot service checks passed for the pinned pair above. On Mint, the
+upgrade from published component versions `0.1.0~alpha.10` and
+`0.2.0~alpha.23` to this suite passed. A local previous-pair fixture then
+confirmed that downgrades are refused by default and that `--allow-downgrade`
+restores both packages; reinstalling this suite and reboot checks passed. The
+fixture used the same installer build with the earlier published component
+packages because this is the first combined suite release; no previous
+combined-suite archive was published.
 
-An upgrade from a different suite version and a rollback to a previous suite
-archive have not yet been tested. The pinned driver package contains no DKMS
-source, so no kernel module was built or qualified. No USB audio, X11/Wayland
-application GUI, Secure Boot, or physical UFX+ qualification is claimed.
-Component release notes describe their separate qualification and limitations.
+The pinned driver package contains no DKMS source, so no kernel module was
+built or qualified. No USB audio, X11/Wayland application GUI, Secure Boot, or
+physical UFX+ qualification is claimed. Component release notes describe their
+separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.
 Review the source repositories and release notes before installation:
