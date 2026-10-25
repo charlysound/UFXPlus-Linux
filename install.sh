@@ -19,7 +19,7 @@ usage() {
     cat <<'EOF'
 Usage: ./install.sh [--verify-only|--preflight-only|--backup-only|--allow-downgrade|--help]
 
-Default mode installs the pinned driver and TotalMixLike packages in one APT
+Default mode installs the pinned driver, RME host and TotalMixLike packages in one APT
 transaction, then offers optional per-user service activation.
 EOF
 }
@@ -31,7 +31,7 @@ doc=json.load(open(sys.argv[1], encoding='utf-8'))
 suite=doc['suite']
 if doc.get('schema_version') != 1 or not re.fullmatch(r'[0-9A-Za-z.+~-]+', suite['version']):
     raise SystemExit('Unsupported or malformed suite manifest')
-for name in ('driver','mixer'):
+for name in ('driver','host','mixer'):
     c=doc['components'][name]
     p=c['package']
     if p['architecture'] != 'amd64' or not re.fullmatch(r'[A-Za-z0-9._+-]+_amd64\.deb', p['file']):
@@ -126,10 +126,10 @@ check_platform
 
 for process in oscmix-gtk4 oscmix ufxplus-driver-panel ufxplus-native ufxplus-live-capture ufxplus-midi; do
     if pgrep -u "$(id -u)" -x "$process" >/dev/null 2>&1; then
-        fail "$process is running; quit OSCmix and stop the driver/MIDI services before upgrading"
+        fail "$process is running; quit OSCmix and stop the audio/MIDI services before upgrading"
     fi
 done
-for unit in ufxplus-driver.service ufxplus-midi.service oscmix-with-driver.service; do
+for unit in ufxplus-driver.service ufxplus-midi.service rme-native-devices.service oscmix-with-driver.service; do
     if systemctl --user is-active --quiet "$unit" 2>/dev/null; then
         fail "$unit is active; stop the user service before upgrading"
     fi
@@ -137,10 +137,11 @@ done
 
 mapfile -t ROWS < <(manifest_rows)
 DRIVER_FILE=$(printf '%s\n' "${ROWS[0]}" | cut -f2)
-MIXER_FILE=$(printf '%s\n' "${ROWS[1]}" | cut -f2)
+HOST_FILE=$(printf '%s\n' "${ROWS[1]}" | cut -f2)
+MIXER_FILE=$(printf '%s\n' "${ROWS[2]}" | cut -f2)
 APT_DOWNGRADE_ARGS=()
 if [[ "$ALLOW_DOWNGRADE" == 1 ]]; then APT_DOWNGRADE_ARGS+=(--allow-downgrades); fi
-for pair in "ufxplus-driver:$DRIVER_FILE" "oscmix-ufxplus:$MIXER_FILE"; do
+for pair in "ufxplus-driver:$DRIVER_FILE" "rme-native-host:$HOST_FILE" "oscmix-ufxplus:$MIXER_FILE"; do
     name=${pair%%:*}; file=${pair#*:}
     installed=$(dpkg-query -W -f='${Version}' "$name" 2>/dev/null || true)
     if [[ -n "$installed" ]]; then
@@ -165,11 +166,11 @@ BACKUP=$(backup_settings) || fail "could not back up user settings"
 } | tee -a "$LOG"
 
 if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v pkexec >/dev/null; then
-    if ! pkexec /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
+    if ! pkexec /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$HOST_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
         fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
     fi
 elif command -v sudo >/dev/null; then
-    if ! sudo /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
+    if ! sudo /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$HOST_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
         fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
     fi
 else
@@ -177,23 +178,18 @@ else
 fi
 
 systemctl --user daemon-reload 2>&1 | tee -a "$LOG" || echo "Could not reload the user systemd manager; log: $LOG"
-echo "Both packages installed. No service has been started automatically by this installer."
+echo "Three packages installed. No service has been started automatically by this installer."
 if [[ -t 0 ]]; then
-    read -r -p "Enable and start the UFX+ driver for this user now? [y/N] " answer
+    read -r -p "Enable and start the shared RME device manager for this user now? [y/N] " answer
     if [[ "$answer" =~ ^[Yy]$ ]]; then
-        systemctl --user enable --now ufxplus-driver.service 2>&1 | tee -a "$LOG"
+        systemctl --user enable --now rme-native-devices.service 2>&1 | tee -a "$LOG"
         if [[ "${XDG_CURRENT_DESKTOP:-}" == *Cinnamon* ]] && command -v ufxplus-driver-enable-applet >/dev/null; then
             ufxplus-driver-enable-applet 2>&1 | tee -a "$LOG"
         fi
-        read -r -p "Enable and start OSCmix alongside the driver now? [y/N] " answer
-        if [[ "$answer" =~ ^[Yy]$ ]]; then
-            systemctl --user enable --now oscmix-with-driver.service 2>&1 | tee -a "$LOG"
-        fi
-        read -r -p "Open the UFX+ driver control panel? [y/N] " answer
-        if [[ "$answer" =~ ^[Yy]$ ]]; then ufxplus-driver-panel; fi
+        read -r -p "Open the RME driver control panel? [y/N] " answer
+        if [[ "$answer" =~ ^[Yy]$ ]]; then rme-driver-panel; fi
     else
-        echo "To start later: systemctl --user enable --now ufxplus-driver.service"
-        echo "To enable the OSCmix companion: systemctl --user enable --now oscmix-with-driver.service"
+        echo "To start later: systemctl --user enable --now rme-native-devices.service"
     fi
 fi
 echo "Installation log: $LOG"

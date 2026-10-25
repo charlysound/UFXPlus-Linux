@@ -21,8 +21,9 @@ EOF
     dpkg-deb --build "$work" "$BUNDLE/packages/$filename" >/dev/null
 }
 
-make_deb ufxplus-driver '0.1.0~alpha.11+alsa.6' 'ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb'
-make_deb oscmix-ufxplus '0.2.0~alpha.26+menus.2' 'oscmix-ufxplus_0.2.0-alpha.26+menus.2_amd64.deb'
+make_deb ufxplus-driver '0.1.0~alpha.12+devices.35' 'ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb'
+make_deb rme-native-host '0.1.0~alpha.20+devices.35' 'rme-native-host_0.1.0-alpha.20+devices.35_amd64.deb'
+make_deb oscmix-ufxplus '0.2.0~alpha.51+devices.35' 'oscmix-ufxplus_0.2.0-alpha.51+devices.35_amd64.deb'
 python3 - "$BUNDLE/components.lock.json" "$BUNDLE/packages" <<'PY'
 import hashlib, json, sys
 path, packages=sys.argv[1:]
@@ -68,6 +69,7 @@ cat >"$FAKE_BIN/dpkg-query" <<'EOF'
 #!/usr/bin/env bash
 case "${@: -1}" in
     ufxplus-driver) echo '9.9.0' ;;
+    rme-native-host) echo '9.9.0' ;;
     oscmix-ufxplus) echo '9.9.0' ;;
     *) exit 1 ;;
 esac
@@ -104,12 +106,13 @@ UFXPLUS_BACKUP_DIR="$TMP/home/backups" UFXPLUS_OS_RELEASE="$TMP/mint-release" \
 DISPLAY= WAYLAND_DISPLAY= \
     "$BUNDLE/install.sh" --allow-downgrade >"$TMP/downgrade-allowed" 2>&1
 grep -Fq -- '--allow-downgrades' "$TMP/apt-args"
+grep -Fq -- 'rme-native-host_0.1.0-alpha.20+devices.35_amd64.deb' "$TMP/apt-args"
 
-cp "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb" "$TMP/driver.deb"
-printf '\ncorruption\n' >>"$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb"
+cp "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb" "$TMP/driver.deb"
+printf '\ncorruption\n' >>"$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb"
 if "$BUNDLE/install.sh" --verify-only >/dev/null 2>&1; then
     echo "Corrupt package checksum was accepted" >&2; exit 1
 fi
-mv "$TMP/driver.deb" "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb"
+mv "$TMP/driver.deb" "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb"
 
 echo "Installer tests passed (verification, supported OS gate, backup preservation, downgrade opt-in, corruption rejection)."

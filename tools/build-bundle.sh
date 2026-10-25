@@ -12,7 +12,7 @@ mkdir -p "$STAGE/packages" "$STAGE/licenses" "$STAGE/metadata"
 python3 - "$ROOT/components.lock.json" >"$WORK/assets.tsv" <<'PY'
 import json, sys
 doc=json.load(open(sys.argv[1], encoding='utf-8'))
-for name in ('driver','mixer'):
+for name in ('driver','host','mixer'):
     item=doc['components'][name]
     package=item['package']
     print('\t'.join((name, package['file'], package['sha256'],

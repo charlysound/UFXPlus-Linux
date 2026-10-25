@@ -29,8 +29,10 @@ jobs:
           ./install.sh --verify-only
           cd ..
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/ufxplus-driver_'
+          tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/rme-native-host_'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/oscmix-ufxplus_'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/licenses/driver-copyright'
+          tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/licenses/host-copyright'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/licenses/mixer-copyright'
       - uses: actions/upload-artifact@v4
         with:

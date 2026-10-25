@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "suite": {
-    "version": "0.1.0-alpha.1",
+    "version": "0.1.0-alpha.2+devices.35",
     "architecture": "amd64",
     "supported_systems": [
       {"id": "linuxmint", "version_id": "22"},
@@ -11,31 +11,46 @@
   "components": {
     "driver": {
       "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
-      "tag": "v0.1.0-alpha.11+alsa.6",
-      "commit": "7f868382d9be9ee99445d47f2d7439d6c978ff62",
-      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.11%2Balsa.6",
+      "tag": "v0.1.0-alpha.12+devices.35",
+      "commit": "191bdf33bfee29710fa364b7c73b5e5901665af8",
+      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.12%2Bdevices.35",
       "package": {
         "name": "ufxplus-driver",
-        "version": "0.1.0~alpha.11+alsa.6",
+        "version": "0.1.0~alpha.12+devices.35",
         "architecture": "amd64",
-        "file": "ufxplus-driver_0.1.0-alpha.11+alsa.6_amd64.deb",
-        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.11%2Balsa.6/ufxplus-driver_0.1.0-alpha.11%2Balsa.6_amd64.deb",
-        "sha256": "aafd2948d20d9e5b2ab874efbdf36e23cf5e45d6f175f123f8fadc5e97e6e9b6",
+        "file": "ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb",
+        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.12%2Bdevices.35/ufxplus-driver_0.1.0-alpha.12%2Bdevices.35_amd64.deb",
+        "sha256": "7482b28d0a674f92fb606e4c62b2be4d7717d475df89daacb3d956f57d1b991e",
         "copyright_path": "usr/share/doc/ufxplus-driver/copyright"
+      }
+    },
+    "host": {
+      "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
+      "tag": "v0.1.0-alpha.12+devices.35",
+      "commit": "191bdf33bfee29710fa364b7c73b5e5901665af8",
+      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.12%2Bdevices.35",
+      "package": {
+        "name": "rme-native-host",
+        "version": "0.1.0~alpha.20+devices.35",
+        "architecture": "amd64",
+        "file": "rme-native-host_0.1.0-alpha.20+devices.35_amd64.deb",
+        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.12%2Bdevices.35/rme-native-host_0.1.0-alpha.20%2Bdevices.35_amd64.deb",
+        "sha256": "dc50af53815b0f188e7535295282bd34c32ec3a9539764e509bbedbbd27416fd",
+        "copyright_path": "usr/share/doc/rme-native-host/copyright"
       }
     },
     "mixer": {
       "repository": "charlysound/TotalMixLike",
-      "tag": "v0.2.0-alpha.26+menus.2",
-      "commit": "9890f9d6055b76dff20c3f4492a7e77b321008be",
-      "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.26%2Bmenus.2",
+      "tag": "v0.2.0-alpha.51+devices.35",
+      "commit": "4ea386aad415159e16de10dd94990ff81a8e2b1e",
+      "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.51%2Bdevices.35",
       "package": {
         "name": "oscmix-ufxplus",
-        "version": "0.2.0~alpha.26+menus.2",
+        "version": "0.2.0~alpha.51+devices.35",
         "architecture": "amd64",
-        "file": "oscmix-ufxplus_0.2.0-alpha.26+menus.2_amd64.deb",
-        "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.26%2Bmenus.2/oscmix-ufxplus_0.2.0-alpha.26%2Bmenus.2_amd64.deb",
-        "sha256": "656eb5d40c17e9d4d99a3b308b934b60e1de4c458f8ec984f46ccd75666e964d",
+        "file": "oscmix-ufxplus_0.2.0-alpha.51+devices.35_amd64.deb",
+        "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.51%2Bdevices.35/oscmix-ufxplus_0.2.0-alpha.51%2Bdevices.35_amd64.deb",
+        "sha256": "ac33f21c98f0470a01f1d82d7d0754282364724ff3f2c50bfac5123deee506b7",
         "copyright_path": "usr/share/doc/oscmix-ufxplus/LICENSE"
       }
     }
