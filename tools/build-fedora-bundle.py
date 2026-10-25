@@ -101,7 +101,7 @@ def build(output, fedora):
             item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='2.fc'+fedora
             if not re.fullmatch(r'[A-Za-z0-9.+~_-]+',version):raise ValueError('Invalid version')
             dependencies = ['python3','python3-rpm','python3-gobject','gtk3','systemd','systemd-udev','pipewire-utils','alsa-lib','libusb1']
-            if key=='host':dependencies += ['dkms','gcc','make']
+            if key=='host':dependencies += ['dkms','gcc','make','dracut']
             if key=='mixer':dependencies += ['gtk4','rme-native-host = '+manifest['components']['host']['package']['version']+'-'+release]
             files = [str(p.relative_to(stage)) for p in sorted(stage.rglob('*')) if p.is_file()]
             paths = '\n'.join('/'+p for p in files)

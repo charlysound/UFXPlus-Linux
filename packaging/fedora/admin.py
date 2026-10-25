@@ -25,6 +25,7 @@ def prepare(kernel=None,no_load=False):
     if not result.stdout.strip():subprocess.run(['dkms','add','-m','rme-pcm','-v','0.1.0'],check=True)
     subprocess.run(['dkms','build','--force','-m','rme-pcm','-v','0.1.0','-k',kernel],check=True)
     subprocess.run(['dkms','install','--force','-m','rme-pcm','-v','0.1.0','-k',kernel],check=True)
+    subprocess.run(['dracut','--force','--kver',kernel],check=True)
     if not no_load:subprocess.run(['modprobe','snd-rme-pcm'],check=True)
     subprocess.run(['udevadm','control','--reload-rules'],check=True)
     print('Native ALSA module built'+('' if no_load else ' and loaded')+' for '+kernel)
