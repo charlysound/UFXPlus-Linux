@@ -22,7 +22,8 @@ For an Apple T2 kernel the matching T2 development package is required; generic
 Fedora headers are insufficient. Kernel loading retains the host's Secure Boot
 policy. If the current kernel headers are unavailable, DNF installs a complete
 newer kernel and its development package; the installer prepares the module for
-that kernel. DNF may update the default boot entry. No reboot is performed.
+that kernel. Where `grubby` is available, the previous default boot entry is
+restored after the package transaction. No reboot is performed.
 
 After successful module preparation:
 

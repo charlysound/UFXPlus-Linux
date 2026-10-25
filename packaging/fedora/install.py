@@ -86,7 +86,15 @@ def main():
     command.append('--allow-downgrade' if args.allow_downgrade else '--no-allow-downgrade')
     command += [str(ROOT/'packages'/p['file']) for p in manifest['packages'].values()]
     if not build.is_file():command += ['kernel','kernel-modules','kernel-modules-extra']
-    subprocess.run(command,check=True)
+    previous_boot=None
+    boot_tool=shutil.which('grubby')
+    if boot_tool:
+        previous_boot=subprocess.check_output(['sudo',boot_tool,'--default-kernel'],text=True).strip()
+        if not previous_boot.startswith('/boot/vmlinuz-') or not Path(previous_boot).is_file():raise ValueError('Cannot preserve the current default kernel')
+    try:
+        subprocess.run(command,check=True)
+    finally:
+        if previous_boot:subprocess.run(['sudo',boot_tool,'--set-default',previous_boot],check=True)
     subprocess.run(['systemctl','--user','daemon-reload'],check=True)
     print('Three RPM packages installed. Audio services have not been started.',flush=True)
     if build.is_file():
@@ -99,7 +107,7 @@ def main():
         candidates=[p for p in sorted(pool) if (p/'Makefile').is_file()]
         if len(candidates)==1:
             subprocess.run(['sudo','/usr/libexec/ufxplus-linux/fedora-admin','--kernel',candidates[0].name,'--no-load'],check=True)
-            print('Native ALSA is prepared for '+candidates[0].name+'. Reboot into this kernel, then run sudo /usr/libexec/ufxplus-linux/fedora-admin before starting audio.')
+            print('Native ALSA is prepared for '+candidates[0].name+'. The existing default boot entry is preserved. Select the prepared kernel when ready to reboot, then run sudo /usr/libexec/ufxplus-linux/fedora-admin before starting audio.')
         else:print('Audio activation still requires exact kernel-devel for '+platform.release()+'. After installing it, run sudo /usr/libexec/ufxplus-linux/fedora-admin.')
     return 0
 
