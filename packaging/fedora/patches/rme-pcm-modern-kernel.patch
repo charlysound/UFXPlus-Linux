@@ -1,5 +1,5 @@
 diff --git a/kernel/rme_pcm.c b/kernel/rme_pcm.c
-index eddfb01..e9a2ab8 100644
+index eddfb01..5524b6f 100644
 --- a/kernel/rme_pcm.c
 +++ b/kernel/rme_pcm.c
 @@ -14,7 +14,11 @@
@@ -34,3 +34,22 @@ index eddfb01..e9a2ab8 100644
  };
  static long transfer(struct rme_chip *chip, unsigned long arg, int direction)
  {
+@@ -440,13 +448,17 @@ static long bridge_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+     mutex_unlock(&owner->mutex);
+     return ret;
+ }
++static loff_t bridge_no_llseek(struct file *file, loff_t offset, int whence)
++{
++    return -ESPIPE;
++}
+ static const struct file_operations bridge_ops = {
+     .owner = THIS_MODULE, .open = bridge_open, .release = bridge_release,
+     .unlocked_ioctl = bridge_ioctl,
+ #ifdef CONFIG_COMPAT
+     .compat_ioctl = compat_ptr_ioctl,
+ #endif
+-    .llseek = no_llseek,
++    .llseek = bridge_no_llseek,
+ };
+ static struct miscdevice bridge = { .minor = MISC_DYNAMIC_MINOR, .name = "rme-pcm",
+     .fops = &bridge_ops, .mode = 0600 };
