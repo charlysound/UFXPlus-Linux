@@ -74,6 +74,15 @@ def build(output, fedora):
             raise ValueError('Unexpected shared payload ownership: '+repr(overlap))
         for name in overlap:
             (payloads['driver']/name).unlink()
+        patch_root=ROOT/'packaging/fedora/patches'
+        module_patch=json.loads((patch_root/'source.json').read_text())
+        kernel_source=payloads['host']/'usr/src/rme-pcm-0.1.0/rme_pcm.c'
+        patch_file=patch_root/'rme-pcm-modern-kernel.patch'
+        if digest(kernel_source)!=module_patch['before_sha256'] or digest(patch_file)!=module_patch['patch_sha256']:
+            raise ValueError('Linux module patch preimage differs from pinned release')
+        subprocess.run(['git','apply','--whitespace=error','-p2',str(patch_file)],cwd=kernel_source.parent,check=True)
+        if digest(kernel_source)!=module_patch['after_sha256']:
+            raise ValueError('Linux module patch result mismatch')
         native_rule=payloads['mixer']/'usr/lib/udev/rules.d/70-rme-native.rules'
         native_rule.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(payloads['mixer']/'usr/lib/oscmix-ufxplus/rme-runtime/70-rme-audio-preview.rules',native_rule)
@@ -89,7 +98,7 @@ def build(output, fedora):
         bundle = work/'ufxplus-linux-suite';(bundle/'packages').mkdir(parents=True);(bundle/'fedora').mkdir()
         packages = {}
         for key,stage in payloads.items():
-            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='1.fc'+fedora
+            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='2.fc'+fedora
             if not re.fullmatch(r'[A-Za-z0-9.+~_-]+',version):raise ValueError('Invalid version')
             dependencies = ['python3','python3-rpm','python3-gobject','gtk3','systemd','systemd-udev','pipewire-utils','alsa-lib','libusb1']
             if key=='host':dependencies += ['dkms','gcc','make']
@@ -130,7 +139,7 @@ if command -v udevadm >/dev/null; then udevadm control --reload-rules || :; fi
             if len(candidates)!=1:raise ValueError('RPM output missing: '+name)
             rpm=candidates[0];shutil.copy2(rpm,bundle/'packages'/rpm.name)
             packages[key]=dict(name=name,version=version,release=release,architecture='x86_64',file=rpm.name,sha256=digest(rpm),upstream_deb_sha256=item['sha256'],upstream_commit=manifest['components'][key]['commit'])
-        data=dict(schema=1,suite_version=manifest['suite']['version'],adapter_commit=head,target=dict(id='fedora',version_id=fedora,architecture='x86_64'),packages=packages,shared_files_owned_by_host=sorted(overlap))
+        data=dict(schema=1,suite_version=manifest['suite']['version'],adapter_commit=head,target=dict(id='fedora',version_id=fedora,architecture='x86_64'),packages=packages,shared_files_owned_by_host=sorted(overlap),linux_module_source=module_patch)
         (bundle/'fedora-manifest.json').write_text(json.dumps(data,indent=2)+'\n')
         shutil.copy2(ROOT/'components.lock.json',bundle/'components.lock.json')
         shutil.copy2(ROOT/'install.sh',bundle/'install.sh')

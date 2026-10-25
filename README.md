@@ -2,9 +2,11 @@
 
 ## Fedora 44 adapter for today's devices35 release
 
-The Fedora archive uses the exact three component payloads pinned below and
-native RPM ownership and DNF dependencies. It does not recompile the audio core,
-install Debian package tools, or change the original Debian archive.
+The Fedora archive uses the three component releases pinned below and native RPM
+ownership and DNF dependencies. Audio core and GUI binaries are unchanged. Its
+small common ALSA module source includes a pinned Linux header compatibility fix,
+recorded in `fedora-manifest.json`; this is shared by every card model. The original
+Debian archive is unchanged.
 
 Extract `ufxplus-linux-suite_0.1.0-alpha.2+devices.35_fedora44_x86_64.tar.gz`, then
 run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
@@ -18,7 +20,9 @@ not the RME audio core or GUI. Install the exact `kernel-devel` matching `uname 
 from your kernel provider, then run `sudo /usr/libexec/ufxplus-linux/fedora-admin`.
 For an Apple T2 kernel the matching T2 development package is required; generic
 Fedora headers are insufficient. Kernel loading retains the host's Secure Boot
-policy. No reboot or boot-kernel change is performed by the installer.
+policy. If the current kernel headers are unavailable, DNF installs a complete
+newer kernel and its development package; the installer prepares the module for
+that kernel. DNF may update the default boot entry. No reboot is performed.
 
 After successful module preparation:
 

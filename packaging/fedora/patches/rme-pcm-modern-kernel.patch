@@ -1,0 +1,36 @@
+diff --git a/kernel/rme_pcm.c b/kernel/rme_pcm.c
+index eddfb01..e9a2ab8 100644
+--- a/kernel/rme_pcm.c
++++ b/kernel/rme_pcm.c
+@@ -14,7 +14,11 @@
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ #include <linux/vmalloc.h>
++#if __has_include(<linux/unaligned.h>)
++#include <linux/unaligned.h>
++#else
+ #include <asm/unaligned.h>
++#endif
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/pcm_params.h>
+@@ -169,6 +173,10 @@ static int pcm_mmap(struct snd_pcm_substream *s, struct vm_area_struct *vma)
+     vm_flags_set(vma, VM_DONTEXPAND | VM_DONTDUMP);
+     return remap_vmalloc_range(vma, s->runtime->dma_area, 0);
+ }
++static struct page *pcm_page(struct snd_pcm_substream *s, unsigned long offset)
++{
++    return vmalloc_to_page(s->runtime->dma_area + offset);
++}
+ static int pcm_sync_stop(struct snd_pcm_substream *s)
+ {
+     struct rme_chip *chip = snd_pcm_substream_chip(s);
+@@ -181,7 +189,7 @@ static const struct snd_pcm_ops pcm_ops = {
+     .open = pcm_open, .close = pcm_close, .ioctl = snd_pcm_lib_ioctl,
+     .hw_params = pcm_params, .hw_free = pcm_free, .prepare = pcm_prepare,
+     .trigger = pcm_trigger, .pointer = pcm_pointer, .sync_stop = pcm_sync_stop,
+-    .page = snd_pcm_lib_get_vmalloc_page, .mmap = pcm_mmap,
++    .page = pcm_page, .mmap = pcm_mmap,
+ };
+ static long transfer(struct rme_chip *chip, unsigned long arg, int direction)
+ {

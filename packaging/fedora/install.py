@@ -79,9 +79,13 @@ def main():
             if current.returncode==0 and rpm.labelCompare(tuple(current.stdout.split('\t')),('0',package['version'],package['release']))>0:
                 raise ValueError('Newer '+package['name']+' installed; use --allow-downgrade only for an intentional rollback')
     saved=backup();print('Settings backup: '+str(saved),flush=True)
+    kernel_trees=Path('/usr/src/kernels')
+    before_trees=set(kernel_trees.iterdir()) if kernel_trees.exists() else set()
+    if not build.is_file():print('The running kernel has no development tree. DNF may install a newer complete kernel for DKMS; audio will require booting that kernel. No reboot is performed.',flush=True)
     command=['sudo','/usr/bin/dnf','install','-y']
     command.append('--allow-downgrade' if args.allow_downgrade else '--no-allow-downgrade')
     command += [str(ROOT/'packages'/p['file']) for p in manifest['packages'].values()]
+    if not build.is_file():command += ['kernel','kernel-modules','kernel-modules-extra']
     subprocess.run(command,check=True)
     subprocess.run(['systemctl','--user','daemon-reload'],check=True)
     print('Three RPM packages installed. Audio services have not been started.',flush=True)
@@ -89,7 +93,14 @@ def main():
         subprocess.run(['sudo','/usr/libexec/ufxplus-linux/fedora-admin'],check=True)
         print('Start audio: systemctl --user enable --now rme-native-devices.service')
     else:
-        print('Audio activation still requires exact kernel-devel for '+platform.release()+'. After installing it, run sudo /usr/libexec/ufxplus-linux/fedora-admin.')
+        after_trees=set(kernel_trees.iterdir()) if kernel_trees.exists() else set()
+        new_trees=after_trees-before_trees
+        pool=new_trees or {p for p in after_trees if p.name!=platform.release() and (Path('/lib/modules')/p.name/'vmlinuz').is_file()}
+        candidates=[p for p in sorted(pool) if (p/'Makefile').is_file()]
+        if len(candidates)==1:
+            subprocess.run(['sudo','/usr/libexec/ufxplus-linux/fedora-admin','--kernel',candidates[0].name,'--no-load'],check=True)
+            print('Native ALSA is prepared for '+candidates[0].name+'. Reboot into this kernel, then run sudo /usr/libexec/ufxplus-linux/fedora-admin before starting audio.')
+        else:print('Audio activation still requires exact kernel-devel for '+platform.release()+'. After installing it, run sudo /usr/libexec/ufxplus-linux/fedora-admin.')
     return 0
 
 if __name__=='__main__':
