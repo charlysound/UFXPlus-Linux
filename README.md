@@ -1,5 +1,39 @@
 # UFX+ Linux
 
+## Fedora 44 adapter for today's devices35 release
+
+The Fedora archive uses the exact three component payloads pinned below and
+native RPM ownership and DNF dependencies. It does not recompile the audio core,
+install Debian package tools, or change the original Debian archive.
+
+Extract `ufxplus-linux-suite_0.1.0-alpha.2+devices.35_fedora44_x86_64.tar.gz`, then
+run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
+and checksums; `--preflight-only` reports the actual platform and kernel build
+tree. The installer backs up XDG settings and refuses upgrades while a component
+service is running. Packages install in one DNF transaction; services remain
+stopped until explicitly enabled.
+
+Audio needs the external `snd-rme-pcm` ALSA module. DKMS builds this small module,
+not the RME audio core or GUI. Install the exact `kernel-devel` matching `uname -r`
+from your kernel provider, then run `sudo /usr/libexec/ufxplus-linux/fedora-admin`.
+For an Apple T2 kernel the matching T2 development package is required; generic
+Fedora headers are insufficient. Kernel loading retains the host's Secure Boot
+policy. No reboot or boot-kernel change is performed by the installer.
+
+After successful module preparation:
+
+```sh
+systemctl --user enable --now rme-native-devices.service
+rme-driver-panel
+oscmix-ufxplus
+```
+
+Runtime dependencies are resolved by DNF. Rust, Cargo and GTK development headers
+are not needed to run these release binaries. RPM bundle generation is a separate
+maintainer operation: `python3 tools/build-fedora-bundle.py --output dist-fedora`.
+Qualification results for this adapter are recorded separately from the existing
+Mint/Ubuntu release and from physical USB/audio qualification.
+
 A single download for the experimental RME driver, shared Linux host and
 TotalMixLike. This distribution keeps the two component repositories, service
 names and independent release histories intact.
