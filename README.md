@@ -49,9 +49,9 @@ Suite `0.1.0-alpha.2+devices.35` pins these component prereleases:
 | TotalMixLike | `0.2.0~alpha.51+devices.35` | `amd64` Debian package |
 
 The exact release tags, commits, assets and SHA-256 values are in
-[`components.lock.json`](components.lock.json). The package target is Linux
-Mint 22 or Ubuntu 24.04 amd64. Other distributions and architectures are not
-supported by this bundle.
+[`components.lock.json`](components.lock.json). The original Debian archive targets
+Linux Mint 22 or Ubuntu 24.04 amd64. Fedora44 uses the separate RPM archive described
+above; its qualification is recorded independently. Other targets remain untested.
 
 The three pinned Debian packages are included under [`vendor/`](vendor/). Their
 checksums were checked against the component releases; this keeps the public
