@@ -16,6 +16,7 @@ import tempfile
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('packages',type=Path)
+    parser.add_argument('--previous',type=Path,help='Previous release RPMs for a real version upgrade')
     args=parser.parse_args()
     if os.geteuid()!=0:raise SystemExit('Run the isolated RPM transaction fixture as root')
     packages=[str(p.resolve()) for p in sorted(args.packages.glob('*.rpm'))]
@@ -46,7 +47,9 @@ def main():
             if ok and result.returncode:raise RuntimeError(result.stdout+result.stderr)
             return result
         rpm('--initdb')
-        rpm('-i','--nodeps',*packages)
+        previous=[str(p.resolve()) for p in sorted(args.previous.glob('*.rpm'))] if args.previous else packages
+        if len(previous)!=3:raise ValueError('Expected three previous RPMs')
+        rpm('-i','--nodeps',*previous)
         helper=root/'usr/libexec/ufxplus-linux/fedora-admin'
         probe='#!/bin/sh\nprintf "%s" "$*" > /var/lib/rpm-state/rme-probe/called\nexit 23\n'
         helper.write_text(probe);helper.chmod(0o755)

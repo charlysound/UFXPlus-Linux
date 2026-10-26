@@ -1,12 +1,13 @@
 {
   "schema_version": 1,
   "suite": {
-    "version": "0.1.0-alpha.3+devices.35",
+    "version": "0.1.0-alpha.4+devices.35",
     "architecture": "amd64",
     "supported_systems": [
       {
         "id": "linuxmint",
-        "version_id": "22"
+        "version_id": "22",
+        "version_pattern": "22 or 22.x"
       },
       {
         "id": "ubuntu",
@@ -32,18 +33,26 @@
     },
     "host": {
       "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
-      "tag": "v0.1.0-alpha.12+devices.35",
-      "commit": "191bdf33bfee29710fa364b7c73b5e5901665af8",
-      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.12%2Bdevices.35",
+      "tag": null,
+      "commit": "d9ddb6d732a97bf34d2c8ecd12012748af86ab7b",
+      "release_url": null,
       "package": {
         "name": "rme-native-host",
-        "version": "0.1.0~alpha.20+devices.35",
+        "version": "0.1.0~alpha.21+devices.35",
         "architecture": "amd64",
-        "file": "rme-native-host_0.1.0-alpha.20+devices.35_amd64.deb",
-        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.12%2Bdevices.35/rme-native-host_0.1.0-alpha.20%2Bdevices.35_amd64.deb",
-        "sha256": "dc50af53815b0f188e7535295282bd34c32ec3a9539764e509bbedbbd27416fd",
+        "file": "rme-native-host_0.1.0-alpha.21+devices.35_amd64.deb",
+        "asset_url": null,
+        "sha256": "ea259469a5ebf0421036e0f33d33bd54ce97de7e33e1016aebf7b2c05d44aa37",
         "copyright_path": "usr/share/doc/rme-native-host/copyright"
-      }
+      },
+      "source_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/commit/d9ddb6d732a97bf34d2c8ecd12012748af86ab7b",
+      "provenance": "Candidate built from committed host packaging; guarded rate binary reused byte-for-byte from pinned alpha.20 DEB",
+      "build_inputs": {
+        "rate_binary_sha256": "1737936fa5b71088d107d0fcb52e69a75f1625af773f75530b05db93e2cef9aa",
+        "rate_binary_deb_sha256": "dc50af53815b0f188e7535295282bd34c32ec3a9539764e509bbedbbd27416fd",
+        "shared_lifecycle_sha256": "43460af1cee72d752c05ba0e187fc8aaf8dcb251546bfa5453b4f335d4297eec"
+      },
+      "source_pr": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/pull/9"
     },
     "mixer": {
       "repository": "charlysound/TotalMixLike",

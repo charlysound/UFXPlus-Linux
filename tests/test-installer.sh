@@ -22,7 +22,7 @@ EOF
 }
 
 make_deb ufxplus-driver '0.1.0~alpha.12+devices.35' 'ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb'
-make_deb rme-native-host '0.1.0~alpha.20+devices.35' 'rme-native-host_0.1.0-alpha.20+devices.35_amd64.deb'
+make_deb rme-native-host '0.1.0~alpha.21+devices.35' 'rme-native-host_0.1.0-alpha.21+devices.35_amd64.deb'
 make_deb oscmix-ufxplus '0.2.0~alpha.51+devices.35' 'oscmix-ufxplus_0.2.0-alpha.51+devices.35_amd64.deb'
 python3 - "$BUNDLE/components.lock.json" "$BUNDLE/packages" <<'PY'
 import hashlib, json, sys
@@ -39,8 +39,14 @@ PY
 
 printf 'ID=ubuntu\nVERSION_ID="24.04"\n' >"$TMP/ubuntu-release"
 UFXPLUS_OS_RELEASE="$TMP/ubuntu-release" "$BUNDLE/install.sh" --preflight-only
-printf 'ID=linuxmint\nVERSION_ID="22"\n' >"$TMP/mint-release"
-UFXPLUS_OS_RELEASE="$TMP/mint-release" "$BUNDLE/install.sh" --preflight-only
+for version in 22 22.1 22.2 22.3; do
+    printf 'ID=linuxmint\nVERSION_ID="%s"\n' "$version" >"$TMP/mint-release"
+    UFXPLUS_OS_RELEASE="$TMP/mint-release" "$BUNDLE/install.sh" --preflight-only
+done
+printf 'ID=linuxmint\nVERSION_ID="23"\n' >"$TMP/mint23-release"
+if UFXPLUS_OS_RELEASE="$TMP/mint23-release" "$BUNDLE/install.sh" --preflight-only >/dev/null 2>&1; then
+    echo "Mint 23 was accepted without qualification" >&2; exit 1
+fi
 printf 'ID=fedora\nVERSION_ID="43"\n' >"$TMP/fedora-release"
 if UFXPLUS_OS_RELEASE="$TMP/fedora-release" "$BUNDLE/install.sh" --preflight-only >/dev/null 2>&1; then
     echo "Unsupported OS was accepted" >&2; exit 1
@@ -77,7 +83,7 @@ EOF
 cat >"$FAKE_BIN/sudo" <<EOF
 #!/usr/bin/env bash
 printf '%s\\n' "\$*" >>"$TMP/apt-args"
-[[ " \$* " == *" --allow-downgrades "* ]]
+[[ " \$* " == *" --allow-downgrades "* || " \$* " == *" remove -y "* ]]
 EOF
 cat >"$FAKE_BIN/systemctl" <<'EOF'
 #!/usr/bin/env bash
@@ -106,7 +112,14 @@ UFXPLUS_BACKUP_DIR="$TMP/home/backups" UFXPLUS_OS_RELEASE="$TMP/mint-release" \
 DISPLAY= WAYLAND_DISPLAY= \
     "$BUNDLE/install.sh" --allow-downgrade >"$TMP/downgrade-allowed" 2>&1
 grep -Fq -- '--allow-downgrades' "$TMP/apt-args"
-grep -Fq -- 'rme-native-host_0.1.0-alpha.20+devices.35_amd64.deb' "$TMP/apt-args"
+grep -Fq -- 'rme-native-host_0.1.0-alpha.21+devices.35_amd64.deb' "$TMP/apt-args"
+
+PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
+XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
+UFXPLUS_BACKUP_DIR="$TMP/home/backups" UFXPLUS_OS_RELEASE="$TMP/mint-release" \
+DISPLAY= WAYLAND_DISPLAY= "$BUNDLE/install.sh" --uninstall >"$TMP/uninstall" 2>&1
+grep -Fq -- 'remove -y oscmix-ufxplus rme-native-host ufxplus-driver' "$TMP/apt-args"
+[[ -f "$TMP/home/config/ufxplus-driver/nodes.json" ]]
 
 cp "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb" "$TMP/driver.deb"
 printf '\ncorruption\n' >>"$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb"

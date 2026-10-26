@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import sys
 from pathlib import Path
 import tarfile
 import tempfile
@@ -17,6 +18,20 @@ builder=module('fedora_builder','tools/build-fedora-bundle.py')
 installer=module('fedora_installer','packaging/fedora/install.py')
 
 class FedoraTests(unittest.TestCase):
+    def test_mint_and_fedora_use_the_pinned_shared_kernel_and_guard(self):
+        lock=json.loads((ROOT/'components.lock.json').read_text())
+        host=lock['components']['host']
+        package=ROOT/'vendor'/host['package']['file']
+        self.assertEqual(builder.digest(package),host['package']['sha256'])
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);builder.deb_payload(package,root)
+            common=root/'usr/lib/rme-native-host/install/rme_kernel_lifecycle.py'
+            self.assertEqual(common.read_bytes(),(ROOT/'packaging/common/rme_kernel_lifecycle.py').read_bytes())
+            self.assertEqual(builder.digest(common),host['build_inputs']['shared_lifecycle_sha256'])
+            known=json.loads((ROOT/'packaging/fedora/patches/source.json').read_text())
+            self.assertEqual(builder.digest(root/'usr/src/rme-pcm-0.1.0/rme_pcm.c'),known['after_sha256'])
+            self.assertEqual(builder.digest(root/'usr/lib/rme-native-host/ufxplus-rate-guarded'),host['build_inputs']['rate_binary_sha256'])
+
     def test_actual_manifest_rejects_corrupted_rpm_before_query_or_transaction(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);(root/'packages').mkdir()
@@ -62,6 +77,7 @@ import shutil
 import subprocess
 from types import SimpleNamespace
 
+sys.modules['rme_kernel_lifecycle']=module('rme_kernel_lifecycle','packaging/common/rme_kernel_lifecycle.py')
 admin=module('fedora_admin','packaging/fedora/admin.py')
 
 class KernelLifecycleTests(unittest.TestCase):

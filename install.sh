@@ -20,7 +20,7 @@ fi
 fail() { echo "UFX+ Linux installer: $*" >&2; exit 1; }
 usage() {
     cat <<'EOF'
-Usage: ./install.sh [--verify-only|--preflight-only|--backup-only|--allow-downgrade|--help]
+Usage: ./install.sh [--verify-only|--preflight-only|--backup-only|--allow-downgrade|--uninstall|--help]
 
 Default mode installs the pinned driver, RME host and TotalMixLike packages in one APT
 transaction, then offers optional per-user service activation.
@@ -67,7 +67,8 @@ check_platform() {
     # shellcheck disable=SC1090
     . "$os_file"
     case "${ID:-}:${VERSION_ID:-}" in
-        ubuntu:24.04|linuxmint:22) ;;
+        ubuntu:24.04) ;;
+        linuxmint:*) [[ "${VERSION_ID:-}" =~ ^22(\.[0-9]+)*$ ]] || fail "only Mint 22.x is supported" ;;
         *) fail "only Ubuntu 24.04 and Linux Mint 22 are supported (found ${ID:-unknown} ${VERSION_ID:-unknown})" ;;
     esac
     [[ "$(dpkg --print-architecture)" == amd64 ]] || fail "this suite supports amd64 only"
@@ -122,7 +123,7 @@ if [[ "$MODE" == --help ]]; then usage; exit 0; fi
 if [[ "$MODE" == --verify-only ]]; then verify_bundle; echo "Suite files, checksums and Debian package identities are valid."; exit 0; fi
 if [[ "$MODE" == --preflight-only ]]; then check_platform; echo "Supported OS and architecture."; exit 0; fi
 if [[ "$MODE" == --backup-only ]]; then backup_settings; exit 0; fi
-[[ "$MODE" == install ]] || fail "unknown option $MODE"
+[[ "$MODE" == install || "$MODE" == --uninstall ]] || fail "unknown option $MODE"
 
 verify_bundle
 check_platform
@@ -139,6 +140,7 @@ for unit in ufxplus-driver.service ufxplus-midi.service rme-native-devices.servi
     fi
 done
 
+if [[ "$MODE" == install ]]; then
 mapfile -t ROWS < <(manifest_rows)
 DRIVER_FILE=$(printf '%s\n' "${ROWS[0]}" | cut -f2)
 HOST_FILE=$(printf '%s\n' "${ROWS[1]}" | cut -f2)
@@ -158,30 +160,40 @@ for pair in "ufxplus-driver:$DRIVER_FILE" "rme-native-host:$HOST_FILE" "oscmix-u
     fi
 done
 
+fi
+
 STATE_HOME=${XDG_STATE_HOME:-"$HOME/.local/state"}
 LOG_DIR="$STATE_HOME/ufxplus-linux/logs"
 mkdir -p -- "$LOG_DIR"; chmod 700 "$LOG_DIR"
-LOG="$LOG_DIR/install-$(date -u +%Y%m%dT%H%M%SZ).log"
+LOG="$LOG_DIR/${MODE#--}-$(date -u +%Y%m%dT%H%M%SZ).log"
 BACKUP=$(backup_settings) || fail "could not back up user settings"
 {
     echo "Suite $(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["suite"]["version"])' "$MANIFEST")"
     echo "Settings backup: $BACKUP"
-    echo "Installing packages in one APT transaction. The driver package may build its optional DKMS module for the running kernel."
+    echo "Package operation: $MODE in one APT transaction. Installation may build the optional DKMS module for the running kernel."
 } | tee -a "$LOG"
 
+APT_ARGS=(remove -y oscmix-ufxplus rme-native-host ufxplus-driver)
+if [[ "$MODE" == install ]]; then
+    APT_ARGS=(install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$HOST_FILE" "$ROOT/packages/$MIXER_FILE")
+fi
 if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]] && command -v pkexec >/dev/null; then
-    if ! pkexec /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$HOST_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
-        fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
-    fi
+    ADMIN=(pkexec)
 elif command -v sudo >/dev/null; then
-    if ! sudo /usr/bin/apt-get install -y "${APT_DOWNGRADE_ARGS[@]}" "$ROOT/packages/$DRIVER_FILE" "$ROOT/packages/$HOST_FILE" "$ROOT/packages/$MIXER_FILE" 2>&1 | tee -a "$LOG"; then
-        fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
-    fi
+    ADMIN=(sudo)
 else
     fail "no usable graphical pkexec session or sudo is available for the package transaction"
 fi
+if ! "${ADMIN[@]}" /usr/bin/apt-get "${APT_ARGS[@]}" 2>&1 | tee -a "$LOG"; then
+    fail "APT failed; no service was started. Review $LOG and retain backup $BACKUP"
+fi
 
 systemctl --user daemon-reload 2>&1 | tee -a "$LOG" || echo "Could not reload the user systemd manager; log: $LOG"
+if [[ "$MODE" == --uninstall ]]; then
+    echo "Packages removed. User settings and backup preserved: $BACKUP"
+    echo "Transaction log: $LOG"
+    exit 0
+fi
 echo "Three packages installed. No service has been started automatically by this installer."
 if [[ -t 0 ]]; then
     read -r -p "Enable and start the shared RME device manager for this user now? [y/N] " answer
