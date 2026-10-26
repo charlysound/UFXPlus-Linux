@@ -17,7 +17,9 @@ jobs:
       - name: Build pinned suite archive
         run: ./tools/build-bundle.sh dist
       - name: Verify suite installer
-        run: ./tests/test-installer.sh
+        run: |
+          ./tests/test-installer.sh
+          python3 -m unittest discover -s tests -p test_fedora.py -v
       - name: Verify archive checksum and contents
         run: |
           cd dist
@@ -29,11 +31,39 @@ jobs:
           ./install.sh --verify-only
           cd ..
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/ufxplus-driver_'
+          tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/rme-native-host_'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/packages/oscmix-ufxplus_'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/licenses/driver-copyright'
+          tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/licenses/host-copyright'
           tar -tzf "$archive" | grep -F 'ufxplus-linux-suite/licenses/mixer-copyright'
       - uses: actions/upload-artifact@v4
         with:
           name: ufxplus-linux-suite
           path: dist/*
+          if-no-files-found: error
+
+  fedora-bundle:
+    runs-on: ubuntu-24.04
+    container: fedora:44
+    steps:
+      - name: Install package assembly tools
+        run: dnf install -y git python3 rpm-build file findutils tar gzip xz sudo systemd dkms policycoreutils
+      - uses: actions/checkout@v4
+      - name: Assemble pinned RPM payloads and verify archive
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          python3 -m unittest discover -s tests -p test_fedora.py -v
+          python3 tools/build-fedora-bundle.py --output dist-fedora
+          cd dist-fedora
+          sha256sum -c SHA256SUMS
+          tar -xzf ufxplus-linux-suite_*_fedora44_x86_64.tar.gz
+          cd ufxplus-linux-suite
+          ./install.sh --verify-only
+          ./install.sh --preflight-only
+          cd ../..
+          python3 tests/test-fedora-rpm-lifecycle.py dist-fedora/ufxplus-linux-suite/packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ufxplus-linux-fedora44
+          path: dist-fedora/*.tar.gz
           if-no-files-found: error

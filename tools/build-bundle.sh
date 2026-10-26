@@ -7,12 +7,12 @@ OUT=$(mkdir -p -- "$OUT" && cd -- "$OUT" && pwd)
 WORK=$(mktemp -d "${TMPDIR:-/tmp}/ufxplus-suite-build.XXXXXX")
 trap 'rm -rf -- "$WORK"' EXIT
 STAGE="$WORK/ufxplus-linux-suite"
-mkdir -p "$STAGE/packages" "$STAGE/licenses" "$STAGE/metadata"
+mkdir -p "$STAGE/packages" "$STAGE/licenses" "$STAGE/metadata" "$STAGE/docs"
 
 python3 - "$ROOT/components.lock.json" >"$WORK/assets.tsv" <<'PY'
 import json, sys
 doc=json.load(open(sys.argv[1], encoding='utf-8'))
-for name in ('driver','mixer'):
+for name in ('driver','host','mixer'):
     item=doc['components'][name]
     package=item['package']
     print('\t'.join((name, package['file'], package['sha256'],
@@ -39,6 +39,7 @@ while IFS=$'\t' read -r component file expected copyright package version archit
 done <"$WORK/assets.tsv"
 
 cp -- "$ROOT/README.md" "$ROOT/components.lock.json" "$ROOT/install.sh" "$STAGE/"
+cp -- "$ROOT/docs/fedora-qualification.md" "$STAGE/docs/"
 suite_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["suite"]["version"])' "$ROOT/components.lock.json")
 printf '%s\n' "$suite_version" >"$STAGE/metadata/suite-version"
 (cd "$STAGE" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum >SHA256SUMS)
