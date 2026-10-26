@@ -1,14 +1,25 @@
 # UFX+ Linux
 
+## Joint Mint 22 / Fedora 44 candidate
+
+This PR prepares suite `0.1.0-alpha.4+devices.35`, with two archives under one
+release: `*_amd64.tar.gz` for Mint 22.x / Ubuntu 24.04 and
+`*_fedora44_x86_64.tar.gz` for Fedora 44. The pinned host candidate depends on
+[driver PR #9](https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/pull/9).
+It is not yet a published component release. Driver and mixer binaries are unchanged.
+
+Both CI targets must pass before a version tag can create a release draft with
+both archives and a combined `SHA256SUMS`. Publication remains an explicit final
+step. See [joint release procedure and qualification](docs/joint-release.md).
+
 ## Fedora 44 experimental distribution
 
 The Fedora archive uses the three component releases pinned below and native RPM
 ownership and DNF dependencies. Audio core and GUI binaries are unchanged. Its
 small common ALSA module source includes a pinned Linux header compatibility fix,
-recorded in `fedora-manifest.json`; this is shared by every card model. The original
-Debian archive is unchanged.
+recorded in `fedora-manifest.json`; this is shared by every card model. The Mint DEB and Fedora RPM now carry the same patched module source and shared lifecycle guard.
 
-Extract `ufxplus-linux-suite_0.1.0-alpha.3+devices.35_fedora44_x86_64.tar.gz`, then
+Extract `ufxplus-linux-suite_0.1.0-alpha.4+devices.35_fedora44_x86_64.tar.gz`, then
 run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
 and checksums; `--preflight-only` reports the actual platform and kernel build
 tree. The installer backs up XDG settings and refuses upgrades while a component
@@ -37,9 +48,9 @@ Runtime dependencies are resolved by DNF. Rust, Cargo and GTK development header
 are not needed to run these release binaries. RPM bundle generation is a separate
 maintainer operation: `python3 tools/build-fedora-bundle.py --output dist-fedora`.
 [Fedora qualification and known limits](docs/fedora-qualification.md) describe
-the exact tested combination, separately from the Mint/Ubuntu release.
+the exact tested combination, with the previous hardware evidence kept distinct from this joint candidate.
 
-RPM revision `4.fc44` isolates its DKMS operations from Fedora's global
+RPM revision `5.fc44` isolates its DKMS operations from Fedora's global
 `post_transaction` hook. It supports DKMS 3.4 (at least 3.4.4) and never changes
 the host framework configuration. The desktop frontend does not need to be in
 an initramfs. Fresh installations leave boot images untouched. An existing
@@ -62,12 +73,12 @@ names and independent release histories intact.
 
 ## Three-family candidate bundle
 
-Suite `0.1.0-alpha.3+devices.35` pins these component prereleases:
+Suite `0.1.0-alpha.4+devices.35` pins two component prereleases and the updated host candidate:
 
 | Component | Version | Supported package target |
 | --- | --- | --- |
 | UFX+ USB3 driver | `0.1.0~alpha.12+devices.35` | `amd64` Debian package |
-| Shared RME Linux host | `0.1.0~alpha.20+devices.35` | `amd64` Debian package |
+| Shared RME Linux host | `0.1.0~alpha.21+devices.35` | `amd64` Debian package |
 | TotalMixLike | `0.2.0~alpha.51+devices.35` | `amd64` Debian package |
 
 The exact release tags, commits, assets and SHA-256 values are in
@@ -76,7 +87,7 @@ Linux Mint 22 or Ubuntu 24.04 amd64. Fedora44 uses the separate RPM archive desc
 above; its qualification is recorded independently. Other targets remain untested.
 
 The three pinned Debian packages are included under [`vendor/`](vendor/). Their
-checksums were checked against the component releases; this keeps the public
+driver/mixer checksums match their component releases; the host candidate records its exact source commit, build input and SHA-256. This keeps the public
 bundle build reproducible without granting this repository access to the
 private component source repositories.
 
@@ -120,6 +131,14 @@ The defaults follow the XDG specification (`~/.config`, `~/.local/state` and
 `~/.local/share`). The backup is a private, user-owned tar archive and is not
 uploaded.
 
+To remove the Mint suite, stop its user services and run `./install.sh --uninstall`.
+The installer backs up settings and removes the three packages in one APT
+transaction. The host's `prerm` refuses a busy module or active runtime, removes
+DKMS registrations before deleting sources, and restores legacy diversions.
+If an older Debian initramfs embeds RME, removal stops with the original image
+and sources retained; migrate that image before retrying. Package-owned DKMS
+calls keep host framework configuration unchanged (DKMS 3.0–3.4).
+
 ## Verify or test without installing
 
 From the extracted suite directory:
@@ -130,7 +149,7 @@ From the extracted suite directory:
 ```
 
 These checks do not install packages, change settings, start services or
-access the UFX+. `--preflight-only` accepts only Linux Mint 22 and Ubuntu
+access the UFX+. `--preflight-only` accepts Linux Mint 22.x and Ubuntu
 24.04 on amd64.
 
 ## Rollback

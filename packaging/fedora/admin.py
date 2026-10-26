@@ -9,6 +9,10 @@ import platform
 import re
 import subprocess
 import tempfile
+import sys
+
+sys.path.insert(0, "/usr/lib/rme-native-host/install")
+import rme_kernel_lifecycle as lifecycle
 
 SOURCE = Path('/usr/src/rme-pcm-0.1.0')
 MODULES = Path('/lib/modules')
@@ -26,40 +30,14 @@ def validate_kernel(kernel):
 
 
 def dkms_env():
-    """DKMS 3.4 safe_source applies overrides after each config read.
-
-    Keep signing and administrator settings; disable only the per-process
-    post-transaction command, without editing the host framework configuration.
-    """
-    version = subprocess.check_output(['dkms', '--version'], text=True).strip()
-    if not re.fullmatch(r'dkms-3\.4\.\d+(?:[-+].*)?', version):
-        raise ValueError('Unsupported DKMS version for isolated operations: ' + version)
-    env = {k: v for k, v in os.environ.items() if not k.startswith('DKMS_DIRECTIVE')}
-    env['DKMS_DIRECTIVE_RME'] = 'post_transaction=/usr/bin/true'
-    return env
-
+    return lifecycle.dkms_environment()
 
 def dkms(args, env):
     return subprocess.run(['dkms', *args], env=env, check=True)
 
 
 def require_idle():
-    for process in PROC.iterdir():
-        if not process.name.isdecimal():
-            continue
-        try:
-            args = (process / 'cmdline').read_bytes().split(b'\0')
-        except (FileNotFoundError, ProcessLookupError):
-            continue
-        if any(arg in (
-            b'/usr/lib/oscmix-ufxplus/rme-runtime/auto.py',
-            b'/usr/lib/oscmix-ufxplus/rme-runtime/launch.py',
-            b'/usr/share/ufxplus-driver/service_start.py',
-        ) for arg in args):
-            raise ValueError('Stop the RME user services before changing the kernel module')
-    if SYS_MODULE.exists() and int((SYS_MODULE / 'refcnt').read_text().strip()) != 0:
-        raise ValueError('The RME kernel module is in use; stop audio first')
-
+    lifecycle.require_idle(PROC, SYS_MODULE)
 
 def image_modules(image):
     listing = subprocess.check_output(['lsinitrd', str(image)], text=True)

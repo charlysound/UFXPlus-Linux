@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+[[ -z "$(git -C "$ROOT" status --porcelain)" ]] || { echo 'Commit the distribution before building' >&2; exit 1; }
 OUT=${1:-"$ROOT/dist"}
 OUT=$(mkdir -p -- "$OUT" && cd -- "$OUT" && pwd)
 WORK=$(mktemp -d "${TMPDIR:-/tmp}/ufxplus-suite-build.XXXXXX")
@@ -39,9 +40,10 @@ while IFS=$'\t' read -r component file expected copyright package version archit
 done <"$WORK/assets.tsv"
 
 cp -- "$ROOT/README.md" "$ROOT/components.lock.json" "$ROOT/install.sh" "$STAGE/"
-cp -- "$ROOT/docs/fedora-qualification.md" "$STAGE/docs/"
+cp -- "$ROOT/docs/fedora-qualification.md" "$ROOT/docs/joint-release.md" "$STAGE/docs/"
 suite_version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["suite"]["version"])' "$ROOT/components.lock.json")
 printf '%s\n' "$suite_version" >"$STAGE/metadata/suite-version"
+git -C "$ROOT" rev-parse HEAD >"$STAGE/metadata/source-commit"
 (cd "$STAGE" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum >SHA256SUMS)
 
 archive="$OUT/ufxplus-linux-suite_${suite_version}_amd64.tar.gz"

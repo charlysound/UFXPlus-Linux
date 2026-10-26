@@ -83,11 +83,20 @@ def build(output, fedora):
         module_patch=json.loads((patch_root/'source.json').read_text())
         kernel_source=payloads['host']/'usr/src/rme-pcm-0.1.0/rme_pcm.c'
         patch_file=patch_root/'rme-pcm-modern-kernel.patch'
-        if digest(kernel_source)!=module_patch['before_sha256'] or digest(patch_file)!=module_patch['patch_sha256']:
-            raise ValueError('Linux module patch preimage differs from pinned release')
-        subprocess.run(['git','apply','--whitespace=error','-p2',str(patch_file)],cwd=kernel_source.parent,check=True)
-        if digest(kernel_source)!=module_patch['after_sha256']:
+        if digest(patch_file) != module_patch['patch_sha256']:
+            raise ValueError('Pinned compatibility patch differs')
+        # Current Mint hosts already carry the shared fix. Accept only the
+        # established before/after hashes; never patch an unknown source.
+        source_hash = digest(kernel_source)
+        if source_hash == module_patch['before_sha256']:
+            subprocess.run(['git','apply','--whitespace=error','-p2',str(patch_file)],cwd=kernel_source.parent,check=True)
+        elif source_hash != module_patch['after_sha256']:
+            raise ValueError('Linux module source differs from pinned shared source')
+        if digest(kernel_source) != module_patch['after_sha256']:
             raise ValueError('Linux module patch result mismatch')
+        common = payloads['host']/'usr/lib/rme-native-host/install/rme_kernel_lifecycle.py'
+        if digest(common) != manifest['components']['host']['build_inputs']['shared_lifecycle_sha256']:
+            raise ValueError('Shared lifecycle guard differs from the pinned host')
         native_rule=payloads['mixer']/'usr/lib/udev/rules.d/70-rme-native.rules'
         native_rule.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(payloads['mixer']/'usr/lib/oscmix-ufxplus/rme-runtime/70-rme-audio-preview.rules',native_rule)
@@ -103,7 +112,7 @@ def build(output, fedora):
         bundle = work/'ufxplus-linux-suite';(bundle/'packages').mkdir(parents=True);(bundle/'fedora').mkdir()
         packages = {}
         for key,stage in payloads.items():
-            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='4.fc'+fedora
+            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='5.fc'+fedora
             if not re.fullmatch(r'[A-Za-z0-9.+~_-]+',version):raise ValueError('Invalid version')
             dependencies = ['python3','python3-rpm','python3-gobject','gtk3','systemd','systemd-udev','pipewire-utils','alsa-lib','libusb1']
             if key=='driver':dependencies += ['python3-pyudev']
@@ -155,6 +164,7 @@ if command -v udevadm >/dev/null; then udevadm control --reload-rules || :; fi
         shutil.copy2(ROOT/'README.md',bundle/'README.md')
         (bundle/'docs').mkdir()
         shutil.copy2(ROOT/'docs/fedora-qualification.md',bundle/'docs/fedora-qualification.md')
+        shutil.copy2(ROOT/'docs/joint-release.md',bundle/'docs/joint-release.md')
         allfiles=[p for p in sorted(bundle.rglob('*')) if p.is_file()]
         (bundle/'SHA256SUMS').write_text(''.join(digest(p)+'  '+str(p.relative_to(bundle))+'\n' for p in allfiles))
         artifact=output/f'ufxplus-linux-suite_{manifest["suite"]["version"]}_fedora{fedora}_x86_64.tar.gz'

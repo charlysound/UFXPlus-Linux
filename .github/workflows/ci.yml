@@ -3,6 +3,7 @@ name: Build and verify suite
 on:
   push:
     branches: [main, 'codex/**']
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -10,7 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  bundle:
+  mint-archive:
+    name: Build Mint archive
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +21,7 @@ jobs:
       - name: Verify suite installer
         run: |
           ./tests/test-installer.sh
-          python3 -m unittest discover -s tests -p test_fedora.py -v
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Verify archive checksum and contents
         run: |
           cd dist
@@ -39,8 +41,55 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ufxplus-linux-suite
-          path: dist/*
+          path: |
+            dist/*.tar.gz
+            dist/SHA256SUMS
           if-no-files-found: error
+
+  mint-lifecycle:
+    name: Mint 22 install, upgrade and removal
+    needs: mint-archive
+    runs-on: ubuntu-24.04
+    container: linuxmintd/mint22-amd64@sha256:34ff53d1dca48a73486c3051425306421278225ae02b6d5066a3c940183cae1f
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install runtime and transaction test prerequisites
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y python3 sudo dkms kmod initramfs-tools-core python3-gi gir1.2-gtk-3.0 udev pipewire-bin libspa-0.2-modules
+          # The build image has Mint repositories on an Ubuntu base. Install
+          # Mint's signed base-files package instead of rewriting os-release.
+          mint_base=$(apt-cache madison base-files | awk '$3 ~ /mint22/ { print $3; exit }')
+          test -n "$mint_base"
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades "base-files=$mint_base"
+          cat /etc/os-release
+          . /etc/os-release
+          test "$ID:$VERSION_ID" = linuxmint:22
+      - uses: actions/download-artifact@v4
+        with:
+          name: ufxplus-linux-suite
+          path: mint-input
+      - name: Verify the actual Mint archive and exercise dpkg hooks
+        run: |
+          cd mint-input
+          sha256sum -c SHA256SUMS
+          tar -xzf ufxplus-linux-suite_*_amd64.tar.gz
+          cd ufxplus-linux-suite
+          ./install.sh --verify-only
+          ./install.sh --preflight-only
+          cd ../..
+          python3 tests/test-deb-lifecycle.py mint-input/ufxplus-linux-suite/packages
+
+  bundle:
+    name: bundle
+    if: always()
+    needs: [mint-archive, mint-lifecycle]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require both Mint build and lifecycle tests
+        run: |
+          test '${{ needs.mint-archive.result }}' = success
+          test '${{ needs.mint-lifecycle.result }}' = success
 
   fedora-bundle:
     runs-on: ubuntu-24.04
@@ -52,7 +101,7 @@ jobs:
       - name: Assemble pinned RPM payloads and verify archive
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          python3 -m unittest discover -s tests -p test_fedora.py -v
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
           python3 tools/build-fedora-bundle.py --output dist-fedora
           cd dist-fedora
           sha256sum -c SHA256SUMS
@@ -61,9 +110,40 @@ jobs:
           ./install.sh --verify-only
           ./install.sh --preflight-only
           cd ../..
-          python3 tests/test-fedora-rpm-lifecycle.py dist-fedora/ufxplus-linux-suite/packages
+          python3 tools/fetch-lifecycle-baseline.py previous-fedora
+          python3 tests/test-fedora-rpm-lifecycle.py dist-fedora/ufxplus-linux-suite/packages --previous previous-fedora
       - uses: actions/upload-artifact@v4
         with:
           name: ufxplus-linux-fedora44
           path: dist-fedora/*.tar.gz
           if-no-files-found: error
+
+  release:
+    name: Stage both distributions under one release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [bundle, mint-lifecycle, fedora-bundle]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ufxplus-linux-suite
+          path: release/mint
+      - uses: actions/download-artifact@v4
+        with:
+          name: ufxplus-linux-fedora44
+          path: release/fedora
+      - name: Validate the tag and prepare the two-file delivery
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 tools/prepare-release.py release --tag "$RELEASE_TAG"
+      - name: Create a reviewable release draft with both archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" release/upload/* --verify-tag --draft --prerelease \
+            --title "UFX+ Linux $RELEASE_TAG — Mint 22 and Fedora 44" \
+            --notes-file docs/joint-release.md
