@@ -121,10 +121,13 @@ class KernelLifecycleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             boot=Path(directory);image=boot/'initramfs-test-kernel.img';image.write_bytes(b'original')
             other=boot/'initramfs-other-kernel.img';other.write_bytes(b'untouched')
-            kept={'usr/lib/modules/test-kernel/apple-bce.ko.xz'}
+            kept={'usr/lib/modules/test-kernel/apple-bce.ko.xz','usr/lib/modules/test-kernel/snd-pcm.ko.xz','usr/lib/modules/test-kernel/snd-timer.ko.xz'}
             def run(command,**kwargs):
                 if command[0]=='dracut':
                     self.assertNotIn('--regenerate-all',command)
+                    added=command[command.index('--add-drivers')+1].split()
+                    self.assertEqual(set(added),{'apple-bce','snd-pcm','snd-timer'})
+                    self.assertNotIn('snd-rme-pcm',added)
                     Path(command[-1]).write_bytes(b'checked')
                 return SimpleNamespace(returncode=0,stdout='',stderr='')
             with patch.object(admin,'BOOT',boot),patch.object(admin,'image_modules',side_effect=[kept|{'usr/lib/modules/test-kernel/snd-rme-pcm.ko.xz'},kept]),patch.object(admin.subprocess,'run',side_effect=run):

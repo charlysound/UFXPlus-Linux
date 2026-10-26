@@ -103,7 +103,7 @@ def build(output, fedora):
         bundle = work/'ufxplus-linux-suite';(bundle/'packages').mkdir(parents=True);(bundle/'fedora').mkdir()
         packages = {}
         for key,stage in payloads.items():
-            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='3.fc'+fedora
+            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='4.fc'+fedora
             if not re.fullmatch(r'[A-Za-z0-9.+~_-]+',version):raise ValueError('Invalid version')
             dependencies = ['python3','python3-rpm','python3-gobject','gtk3','systemd','systemd-udev','pipewire-utils','alsa-lib','libusb1']
             if key=='driver':dependencies += ['python3-pyudev']

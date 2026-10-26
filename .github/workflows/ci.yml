@@ -47,7 +47,7 @@ jobs:
     container: fedora:44
     steps:
       - name: Install package assembly tools
-        run: dnf install -y git python3 rpm-build file findutils tar gzip xz sudo systemd dkms
+        run: dnf install -y git python3 rpm-build file findutils tar gzip xz sudo systemd dkms policycoreutils
       - uses: actions/checkout@v4
       - name: Assemble pinned RPM payloads and verify archive
         run: |

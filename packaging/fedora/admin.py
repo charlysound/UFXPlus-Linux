@@ -83,10 +83,13 @@ def clean_image(kernel):
     before = image_modules(image)
     if not any(map(is_rme_module, before)):
         return
+    # Keep even dependencies pulled in only by the old RME module. Merely
+    # omitting it lets dracut prune snd-pcm/snd-timer from an existing image.
+    keep = sorted({Path(name).name.split('.ko', 1)[0] for name in before if not is_rme_module(name)})
     with tempfile.TemporaryDirectory(prefix='.rme-initramfs-', dir=BOOT) as temporary:
         candidate = Path(temporary) / image.name
         result = subprocess.run(
-            ['dracut', '--force', '--kver', kernel, '--omit-drivers', 'snd_rme_pcm',
+            ['dracut', '--force', '--kver', kernel, '--add-drivers', ' '.join(keep), '--omit-drivers', 'snd_rme_pcm',
              '--remove', '/usr/lib/modules-load.d/rme-pcm.conf', str(candidate)],
             capture_output=True, text=True)
         output = result.stdout + result.stderr

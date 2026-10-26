@@ -22,7 +22,8 @@ def main():
     if len(packages)!=3:raise SystemExit('Expected the three candidate RPMs')
     with tempfile.TemporaryDirectory(prefix='rme-rpm-lifecycle-') as directory:
         root=Path(directory)
-        for name in ('bin','usr/bin','dev','probe'):(root/name).mkdir(parents=True,exist_ok=True)
+        root.chmod(0o755)
+        for name in ('bin','usr/bin','usr/lib/sysimage/rpm','dev','var/lib/rpm-state/rme-probe'):(root/name).mkdir(parents=True,exist_ok=True)
         shutil.copy2('/bin/sh',root/'bin/sh',follow_symlinks=True)
         libs=subprocess.check_output(['ldd','/bin/sh'],text=True)
         for name in set(re.findall(r'/[^\s()]+',libs)):
@@ -32,24 +33,32 @@ def main():
                 shutil.copy2(path,target,follow_symlinks=True)
         (root/'dev/null').touch()
         udev=root/'usr/bin/udevadm';udev.write_text('#!/bin/sh\nexit 0\n');udev.chmod(0o755)
+        contexts=Path('/etc/selinux/targeted/contexts/files/file_contexts')
+        if shutil.which('selinuxenabled') and subprocess.run(['selinuxenabled']).returncode==0:
+            if not contexts.is_file():raise RuntimeError('SELinux is enabled but its file contexts are unavailable')
+            # A chroot under /tmp otherwise inherits temporary-file labels;
+            # RPM's confined database writer cannot use those labels.
+            subprocess.run(['setfiles','-r',str(root),str(contexts),str(root)],check=True)
         def rpm(*command,ok=True):
-            result=subprocess.run(['rpm','--root',str(root),*command],capture_output=True,text=True)
+            # The fixture checks scriptlet dispatch, not host integration
+            # plugins (SELinux, systemd inhibition, audit, ...).
+            result=subprocess.run(['rpm','--noplugins','--root',str(root),*command],capture_output=True,text=True)
             if ok and result.returncode:raise RuntimeError(result.stdout+result.stderr)
             return result
         rpm('--initdb')
         rpm('-i','--nodeps',*packages)
         helper=root/'usr/libexec/ufxplus-linux/fedora-admin'
-        probe='#!/bin/sh\nprintf "%s" "$*" > /probe/called\nexit 23\n'
+        probe='#!/bin/sh\nprintf "%s" "$*" > /var/lib/rpm-state/rme-probe/called\nexit 23\n'
         helper.write_text(probe);helper.chmod(0o755)
         # The final-removal hook must not run during an upgrade.
         rpm('-U','--nodeps','--replacepkgs',*packages)
-        if (root/'probe/called').exists():raise AssertionError('Upgrade ran removal hook')
+        if (root/'var/lib/rpm-state/rme-probe/called').exists():raise AssertionError('Upgrade ran removal hook')
         helper.write_text(probe);helper.chmod(0o755)
         denied=rpm('-e','--nodeps','rme-native-host',ok=False)
         if denied.returncode==0:raise AssertionError('Busy removal was accepted')
         rpm('-q','rme-native-host')
-        if (root/'probe/called').read_text()!='--remove':raise AssertionError('Wrong removal helper arguments')
-        helper.write_text('#!/bin/sh\nprintf "%s" "$*" > /probe/called\nexit 0\n');helper.chmod(0o755)
+        if (root/'var/lib/rpm-state/rme-probe/called').read_text()!='--remove':raise AssertionError('Wrong removal helper arguments')
+        helper.write_text('#!/bin/sh\nprintf "%s" "$*" > /var/lib/rpm-state/rme-probe/called\nexit 0\n');helper.chmod(0o755)
         rpm('-e','--nodeps','rme-native-host')
         if rpm('-q','rme-native-host',ok=False).returncode==0:raise AssertionError('Package remained installed')
         print(json.dumps(dict(fixture='temporary chroot; inert kernel helper',install='pass',upgrade_preserves_dkms='pass',busy_removal_refused='pass',final_removal='pass'),indent=2))

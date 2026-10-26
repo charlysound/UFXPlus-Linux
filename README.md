@@ -39,7 +39,7 @@ maintainer operation: `python3 tools/build-fedora-bundle.py --output dist-fedora
 Qualification results for this adapter are recorded separately from the existing
 Mint/Ubuntu release and from physical USB/audio qualification.
 
-RPM revision `3.fc44` isolates its DKMS operations from Fedora's global
+RPM revision `4.fc44` isolates its DKMS operations from Fedora's global
 `post_transaction` hook. It supports DKMS 3.4 (at least 3.4.4) and never changes
 the host framework configuration. The desktop frontend does not need to be in
 an initramfs. Fresh installations leave boot images untouched. An existing
