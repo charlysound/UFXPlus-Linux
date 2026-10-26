@@ -1,12 +1,68 @@
 # UFX+ Linux
 
+## Fedora 44 experimental distribution
+
+The Fedora archive uses the three component releases pinned below and native RPM
+ownership and DNF dependencies. Audio core and GUI binaries are unchanged. Its
+small common ALSA module source includes a pinned Linux header compatibility fix,
+recorded in `fedora-manifest.json`; this is shared by every card model. The original
+Debian archive is unchanged.
+
+Extract `ufxplus-linux-suite_0.1.0-alpha.3+devices.35_fedora44_x86_64.tar.gz`, then
+run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
+and checksums; `--preflight-only` reports the actual platform and kernel build
+tree. The installer backs up XDG settings and refuses upgrades while a component
+service is running. Packages install in one DNF transaction; services remain
+stopped until explicitly enabled.
+
+Audio needs the external `snd-rme-pcm` ALSA module. DKMS builds this small module,
+not the RME audio core or GUI. Install the exact `kernel-devel` matching `uname -r`
+from your kernel provider, then run `sudo /usr/libexec/ufxplus-linux/fedora-admin`.
+For an Apple T2 kernel the matching T2 development package is required; generic
+Fedora headers are insufficient. Kernel loading retains the host's Secure Boot
+policy. If the current kernel headers are unavailable, DNF installs a complete
+newer kernel and its development package; the installer prepares the module for
+that kernel. Where `grubby` is available, the previous default boot entry is
+restored after the package transaction. No reboot is performed.
+
+After successful module preparation:
+
+```sh
+systemctl --user enable --now rme-native-devices.service
+rme-driver-panel
+oscmix-ufxplus
+```
+
+Runtime dependencies are resolved by DNF. Rust, Cargo and GTK development headers
+are not needed to run these release binaries. RPM bundle generation is a separate
+maintainer operation: `python3 tools/build-fedora-bundle.py --output dist-fedora`.
+[Fedora qualification and known limits](docs/fedora-qualification.md) describe
+the exact tested combination, separately from the Mint/Ubuntu release.
+
+RPM revision `4.fc44` isolates its DKMS operations from Fedora's global
+`post_transaction` hook. It supports DKMS 3.4 (at least 3.4.4) and never changes
+the host framework configuration. The desktop frontend does not need to be in
+an initramfs. Fresh installations leave boot images untouched. An existing
+target image containing an earlier RME module is rebuilt without it in a
+temporary file, checked for dracut errors and missing unrelated modules, then
+replaced atomically. Other kernel images and the default boot choice are kept.
+DKMS operations launched independently by the operating system retain its own
+configured hooks; this package does not repair a kernel provider's configuration.
+
+To uninstall, close OSCmix, stop the RME user services, then run
+`./install.sh --uninstall` from the verified suite. Settings are backed up and
+preserved. Final host RPM removal refuses active owners or a busy module,
+cleans DKMS registrations and installed modules for all registered kernels,
+and unloads the idle frontend. RPM upgrades retain the existing registration
+until the explicit preparation step rebuilds it; they do not run removal.
+
 A single download for the experimental RME driver, shared Linux host and
 TotalMixLike. This distribution keeps the two component repositories, service
 names and independent release histories intact.
 
 ## Three-family candidate bundle
 
-Suite `0.1.0-alpha.2+devices.35` pins these component prereleases:
+Suite `0.1.0-alpha.3+devices.35` pins these component prereleases:
 
 | Component | Version | Supported package target |
 | --- | --- | --- |
@@ -15,9 +71,9 @@ Suite `0.1.0-alpha.2+devices.35` pins these component prereleases:
 | TotalMixLike | `0.2.0~alpha.51+devices.35` | `amd64` Debian package |
 
 The exact release tags, commits, assets and SHA-256 values are in
-[`components.lock.json`](components.lock.json). The package target is Linux
-Mint 22 or Ubuntu 24.04 amd64. Other distributions and architectures are not
-supported by this bundle.
+[`components.lock.json`](components.lock.json). The original Debian archive targets
+Linux Mint 22 or Ubuntu 24.04 amd64. Fedora44 uses the separate RPM archive described
+above; its qualification is recorded independently. Other targets remain untested.
 
 The three pinned Debian packages are included under [`vendor/`](vendor/). Their
 checksums were checked against the component releases; this keeps the public
@@ -102,9 +158,9 @@ Ubuntu 24.04 VM installation tests. Those results do not qualify this new
 three-package transaction. The candidate needs fresh VM and physical checks
 for Babyface, UFX+ and Digiface Dante before normal installation is advised.
 
-No USB audio, X11/Wayland application GUI, Secure Boot, or physical three-card
-qualification is claimed for this candidate. Component release notes describe their
-separate qualification and limitations.
+The Fedora checks and their limits are documented separately above. Secure Boot
+and physical three-card qualification are not claimed for this candidate. Component
+release notes describe their separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.
 Review the source repositories and release notes before installation:

@@ -2,6 +2,9 @@
 set -euo pipefail
 
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+if [[ -f "$ROOT/fedora-manifest.json" ]]; then
+    exec /usr/bin/python3 "$ROOT/fedora/install.py" "$@"
+fi
 MANIFEST="$ROOT/components.lock.json"
 ALLOW_DOWNGRADE=0
 MODE=install
@@ -47,6 +50,7 @@ verify_bundle() {
     local rows component file package version architecture expected actual
     rows=$(manifest_rows) || fail "invalid components.lock.json"
     (cd "$ROOT" && sha256sum --check --strict SHA256SUMS) || fail "suite checksum verification failed"
+    command -v dpkg-deb >/dev/null || fail "this archive contains Debian packages and requires dpkg-deb; use the Fedora archive on Fedora"
     while IFS=$'\t' read -r component file package version architecture expected; do
         [[ -f "$ROOT/packages/$file" ]] || fail "missing $component package $file"
         actual=$(sha256sum -- "$ROOT/packages/$file" | cut -d ' ' -f1)
