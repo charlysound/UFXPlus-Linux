@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import shlex
 import sys
 from pathlib import Path
 import tarfile
@@ -177,7 +178,7 @@ class KernelLifecycleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             helper=Path(directory)/'helper';called=Path(directory)/'called'
             helper.write_text('#!/bin/sh\nprintf "%s" "$*" > "'+str(called)+'"\nexit 23\n');helper.chmod(0o755)
-            hook=builder.HOST_PREUN.removeprefix('%preun\n').replace('/usr/libexec/ufxplus-linux/fedora-admin',str(helper))
+            hook=builder.HOST_PREUN.removeprefix('%preun\n').replace('/usr/libexec/ufxplus-linux/fedora-admin',shlex.quote(str(helper)))
             self.assertEqual(subprocess.run(['/bin/sh','-c',hook,'preun','1']).returncode,0)
             self.assertFalse(called.exists())
             self.assertEqual(subprocess.run(['/bin/sh','-c',hook,'preun','0']).returncode,23)
