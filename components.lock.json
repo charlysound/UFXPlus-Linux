@@ -1,11 +1,17 @@
 {
   "schema_version": 1,
   "suite": {
-    "version": "0.1.0-alpha.2+devices.35",
+    "version": "0.1.0-alpha.3+devices.35",
     "architecture": "amd64",
     "supported_systems": [
-      {"id": "linuxmint", "version_id": "22"},
-      {"id": "ubuntu", "version_id": "24.04"}
+      {
+        "id": "linuxmint",
+        "version_id": "22"
+      },
+      {
+        "id": "ubuntu",
+        "version_id": "24.04"
+      }
     ]
   },
   "components": {

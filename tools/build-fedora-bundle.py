@@ -153,6 +153,8 @@ if command -v udevadm >/dev/null; then udevadm control --reload-rules || :; fi
         shutil.copy2(ROOT/'install.sh',bundle/'install.sh')
         shutil.copy2(ROOT/'packaging/fedora/install.py',bundle/'fedora/install.py')
         shutil.copy2(ROOT/'README.md',bundle/'README.md')
+        (bundle/'docs').mkdir()
+        shutil.copy2(ROOT/'docs/fedora-qualification.md',bundle/'docs/fedora-qualification.md')
         allfiles=[p for p in sorted(bundle.rglob('*')) if p.is_file()]
         (bundle/'SHA256SUMS').write_text(''.join(digest(p)+'  '+str(p.relative_to(bundle))+'\n' for p in allfiles))
         artifact=output/f'ufxplus-linux-suite_{manifest["suite"]["version"]}_fedora{fedora}_x86_64.tar.gz'

@@ -1,6 +1,6 @@
 # UFX+ Linux
 
-## Fedora 44 adapter for today's devices35 release
+## Fedora 44 experimental distribution
 
 The Fedora archive uses the three component releases pinned below and native RPM
 ownership and DNF dependencies. Audio core and GUI binaries are unchanged. Its
@@ -8,7 +8,7 @@ small common ALSA module source includes a pinned Linux header compatibility fix
 recorded in `fedora-manifest.json`; this is shared by every card model. The original
 Debian archive is unchanged.
 
-Extract `ufxplus-linux-suite_0.1.0-alpha.2+devices.35_fedora44_x86_64.tar.gz`, then
+Extract `ufxplus-linux-suite_0.1.0-alpha.3+devices.35_fedora44_x86_64.tar.gz`, then
 run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
 and checksums; `--preflight-only` reports the actual platform and kernel build
 tree. The installer backs up XDG settings and refuses upgrades while a component
@@ -36,8 +36,8 @@ oscmix-ufxplus
 Runtime dependencies are resolved by DNF. Rust, Cargo and GTK development headers
 are not needed to run these release binaries. RPM bundle generation is a separate
 maintainer operation: `python3 tools/build-fedora-bundle.py --output dist-fedora`.
-Qualification results for this adapter are recorded separately from the existing
-Mint/Ubuntu release and from physical USB/audio qualification.
+[Fedora qualification and known limits](docs/fedora-qualification.md) describe
+the exact tested combination, separately from the Mint/Ubuntu release.
 
 RPM revision `4.fc44` isolates its DKMS operations from Fedora's global
 `post_transaction` hook. It supports DKMS 3.4 (at least 3.4.4) and never changes
@@ -62,7 +62,7 @@ names and independent release histories intact.
 
 ## Three-family candidate bundle
 
-Suite `0.1.0-alpha.2+devices.35` pins these component prereleases:
+Suite `0.1.0-alpha.3+devices.35` pins these component prereleases:
 
 | Component | Version | Supported package target |
 | --- | --- | --- |
@@ -158,9 +158,9 @@ Ubuntu 24.04 VM installation tests. Those results do not qualify this new
 three-package transaction. The candidate needs fresh VM and physical checks
 for Babyface, UFX+ and Digiface Dante before normal installation is advised.
 
-No USB audio, X11/Wayland application GUI, Secure Boot, or physical three-card
-qualification is claimed for this candidate. Component release notes describe their
-separate qualification and limitations.
+The Fedora checks and their limits are documented separately above. Secure Boot
+and physical three-card qualification are not claimed for this candidate. Component
+release notes describe their separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.
 Review the source repositories and release notes before installation:
