@@ -47,7 +47,7 @@ jobs:
     container: fedora:44
     steps:
       - name: Install package assembly tools
-        run: dnf install -y git python3 rpm-build file findutils tar gzip xz sudo systemd
+        run: dnf install -y git python3 rpm-build file findutils tar gzip xz sudo systemd dkms
       - uses: actions/checkout@v4
       - name: Assemble pinned RPM payloads and verify archive
         run: |
@@ -60,6 +60,8 @@ jobs:
           cd ufxplus-linux-suite
           ./install.sh --verify-only
           ./install.sh --preflight-only
+          cd ../..
+          python3 tests/test-fedora-rpm-lifecycle.py dist-fedora/ufxplus-linux-suite/packages
       - uses: actions/upload-artifact@v4
         with:
           name: ufxplus-linux-fedora44

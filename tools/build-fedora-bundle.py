@@ -20,6 +20,11 @@ SHARED = {
     'usr/share/ufxplus-driver/owner_policy.py', 'usr/share/ufxplus-driver/runtime_state.py',
     'usr/share/ufxplus-driver/session_supervisor.py',
 }
+HOST_PREUN = '''%preun
+if [ "$1" -eq 0 ]; then
+    /usr/libexec/ufxplus-linux/fedora-admin --remove || exit $?
+fi
+'''
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -98,15 +103,16 @@ def build(output, fedora):
         bundle = work/'ufxplus-linux-suite';(bundle/'packages').mkdir(parents=True);(bundle/'fedora').mkdir()
         packages = {}
         for key,stage in payloads.items():
-            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='2.fc'+fedora
+            item = manifest['components'][key]['package'];name=item['name'];version=item['version'];release='3.fc'+fedora
             if not re.fullmatch(r'[A-Za-z0-9.+~_-]+',version):raise ValueError('Invalid version')
             dependencies = ['python3','python3-rpm','python3-gobject','gtk3','systemd','systemd-udev','pipewire-utils','alsa-lib','libusb1']
             if key=='driver':dependencies += ['python3-pyudev']
-            if key=='host':dependencies += ['dkms','gcc','make','dracut']
+            if key=='host':dependencies += ['dkms >= 3.4.4','dkms < 3.5','gcc','make','dracut','kmod','coreutils']
             if key=='mixer':dependencies += ['gtk4','alsa-utils','iproute','util-linux','rme-native-host = '+manifest['components']['host']['package']['version']+'-'+release]
             files = [str(p.relative_to(stage)) for p in sorted(stage.rglob('*')) if p.is_file()]
             paths = '\n'.join('/'+p for p in files)
             license_expression='MIT AND GPL-2.0-only' if key=='host' else ('ISC' if key=='mixer' else 'MIT')
+            removal = HOST_PREUN if key=='host' else ''
             spec = f'''%global debug_package %{{nil}}
 %global __os_install_post %{{nil}}
 Name: {name}
@@ -131,6 +137,7 @@ cp -a {stage}/. %{{buildroot}}/
 %post
 if command -v udevadm >/dev/null; then udevadm control --reload-rules || :; fi
 
+{removal}
 %files
 {paths}
 '''

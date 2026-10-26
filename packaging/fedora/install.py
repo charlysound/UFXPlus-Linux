@@ -59,7 +59,7 @@ def backup():
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     group=parser.add_mutually_exclusive_group()
-    for option in ('verify-only','preflight-only','backup-only'):group.add_argument('--'+option,action='store_true')
+    for option in ('verify-only','preflight-only','backup-only','uninstall'):group.add_argument('--'+option,action='store_true')
     parser.add_argument('--allow-downgrade',action='store_true')
     args=parser.parse_args()
     if args.backup_only:print(backup());return 0
@@ -72,6 +72,12 @@ def main():
     for unit in UNITS:
         if subprocess.run(['systemctl','--user','is-active','--quiet',unit],stderr=subprocess.DEVNULL).returncode==0:
             raise ValueError(unit+' is active; stop audio before upgrading')
+    if args.uninstall:
+        saved=backup();print('Settings backup: '+str(saved),flush=True)
+        subprocess.run(['sudo','/usr/bin/dnf','remove','-y',*[p['name'] for p in manifest['packages'].values()]],check=True)
+        subprocess.run(['systemctl','--user','daemon-reload'],check=True)
+        print('Suite removed. Settings preserved; final host removal cleaned its DKMS registrations.')
+        return 0
     if not args.allow_downgrade:
         import rpm
         for package in manifest['packages'].values():
@@ -100,6 +106,8 @@ def main():
     if build.is_file():
         subprocess.run(['sudo','/usr/libexec/ufxplus-linux/fedora-admin'],check=True)
         print('Start audio: systemctl --user enable --now rme-native-devices.service')
+        if previous_boot and previous_boot!='/boot/vmlinuz-'+platform.release():
+            print('The default boot entry remains '+previous_boot+'. RME was prepared for the running kernel '+platform.release()+'; select that kernel explicitly on your next boot. No boot-default change was made.')
     else:
         after_trees=set(kernel_trees.iterdir()) if kernel_trees.exists() else set()
         new_trees=after_trees-before_trees

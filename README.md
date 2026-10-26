@@ -39,6 +39,23 @@ maintainer operation: `python3 tools/build-fedora-bundle.py --output dist-fedora
 Qualification results for this adapter are recorded separately from the existing
 Mint/Ubuntu release and from physical USB/audio qualification.
 
+RPM revision `3.fc44` isolates its DKMS operations from Fedora's global
+`post_transaction` hook. It supports DKMS 3.4 (at least 3.4.4) and never changes
+the host framework configuration. The desktop frontend does not need to be in
+an initramfs. Fresh installations leave boot images untouched. An existing
+target image containing an earlier RME module is rebuilt without it in a
+temporary file, checked for dracut errors and missing unrelated modules, then
+replaced atomically. Other kernel images and the default boot choice are kept.
+DKMS operations launched independently by the operating system retain its own
+configured hooks; this package does not repair a kernel provider's configuration.
+
+To uninstall, close OSCmix, stop the RME user services, then run
+`./install.sh --uninstall` from the verified suite. Settings are backed up and
+preserved. Final host RPM removal refuses active owners or a busy module,
+cleans DKMS registrations and installed modules for all registered kernels,
+and unloads the idle frontend. RPM upgrades retain the existing registration
+until the explicit preparation step rebuilds it; they do not run removal.
+
 A single download for the experimental RME driver, shared Linux host and
 TotalMixLike. This distribution keeps the two component repositories, service
 names and independent release histories intact.
