@@ -29,7 +29,8 @@ against the bytes in the pinned host DEB. Do not edit model-specific copies.
   gates (Mint 22, 22.1, 22.2, 22.3; reject 23), backups, rollback authorization,
   checksums and removal dispatch.
 - A digest-pinned [Mint 22 image](https://hub.docker.com/r/linuxmintd/mint22-amd64)
-  checks its real os-release and archive preflight, then runs real dpkg
+  installs Mint's signed `base-files` package from its Mint repository, checks
+  the resulting real os-release and archive preflight, then runs real dpkg
   installation, host upgrade/reinstallation, failed removal and final removal.
   DKMS is a fixture: this proves hook dispatch, source retention, diversion
   restoration and settings preservation, not a kernel build or hardware audio.
@@ -43,8 +44,14 @@ against the bytes in the pinned host DEB. Do not edit model-specific copies.
   from another source commit. A failing target prevents release staging.
 
 These container/chroot checks do not qualify boot, Secure Boot, desktop
-interaction or an attached sound card. Real Mint VM evidence for this candidate
-is recorded in the development report. The earlier Fedora hardware qualification
+interaction or an attached sound card. On 26 October 2026, a disposable Mint 22 Wilma VM (kernel 6.8.0-38-generic,
+no USB/audio passthrough) passed the published host20 → candidate host21 upgrade,
+real DKMS build/install and module load, a refused removal with a simulated
+active runtime, full removal, fresh installation and reboot. DKMS registration,
+package integrity and all four pre-existing XDG sentinels survived as expected.
+The VM was powered off cleanly; the original backing disk was used read-only.
+Evidence is in the development report. This is package/boot qualification in a
+VM, not sound-card qualification. The earlier Fedora hardware qualification
 belongs to RPM `4.fc44`; [its limits](fedora-qualification.md) remain applicable
 and do not imply the new RPM `5.fc44` was installed on that machine.
 

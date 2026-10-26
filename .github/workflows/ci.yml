@@ -56,6 +56,12 @@ jobs:
         run: |
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y python3 sudo dkms kmod initramfs-tools-core python3-gi gir1.2-gtk-3.0 udev pipewire-bin libspa-0.2-modules
+          # The build image has Mint repositories on an Ubuntu base. Install
+          # Mint's signed base-files package instead of rewriting os-release.
+          mint_base=$(apt-cache madison base-files | awk '$3 ~ /mint22/ { print $3; exit }')
+          test -n "$mint_base"
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-downgrades "base-files=$mint_base"
+          cat /etc/os-release
           . /etc/os-release
           test "$ID:$VERSION_ID" = linuxmint:22
       - uses: actions/download-artifact@v4
