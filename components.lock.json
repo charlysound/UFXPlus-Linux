@@ -12,6 +12,12 @@
       {
         "id": "ubuntu",
         "version_id": "24.04"
+      },
+      {
+        "id": "fedora",
+        "version_id": "44",
+        "architecture": "x86_64",
+        "archive_format": "rpm"
       }
     ]
   },

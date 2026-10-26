@@ -11,7 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  bundle:
+  mint-archive:
+    name: Build Mint archive
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +48,7 @@ jobs:
 
   mint-lifecycle:
     name: Mint 22 install, upgrade and removal
-    needs: bundle
+    needs: mint-archive
     runs-on: ubuntu-24.04
     container: linuxmintd/mint22-amd64@sha256:34ff53d1dca48a73486c3051425306421278225ae02b6d5066a3c940183cae1f
     steps:
@@ -78,6 +79,17 @@ jobs:
           ./install.sh --preflight-only
           cd ../..
           python3 tests/test-deb-lifecycle.py mint-input/ufxplus-linux-suite/packages
+
+  bundle:
+    name: bundle
+    if: always()
+    needs: [mint-archive, mint-lifecycle]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require both Mint build and lifecycle tests
+        run: |
+          test '${{ needs.mint-archive.result }}' = success
+          test '${{ needs.mint-lifecycle.result }}' = success
 
   fedora-bundle:
     runs-on: ubuntu-24.04
