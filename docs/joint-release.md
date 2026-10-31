@@ -29,6 +29,14 @@ The Fedora RPM keeps the exact USB rule already shipped by the alpha.4 adapter, 
 `packaging/fedora/70-rme-native.rules`; it is not generated from alpha.67's
 passive USB identity catalogue, which carries no permission policy.
 
+TotalMixLike also fixes deferred Mixer Settings callbacks and temporary-model
+retirement in its menu fixture. The complete 48-case menu fixture passes
+AddressSanitizer; retained controls cannot write or close a replacement window.
+Repeated source checks isolate configuration/state, and the connected-preferences
+fixture keeps external settings untouched while testing child-process persistence.
+Secondary-window scale checks retain the requested owner scale and original
+geometry/tolerance while waiting for GTK allocation.
+
 ## Automated checks
 
 - TotalMixLike's private source repository uses local VM runners labelled

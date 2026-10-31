@@ -33,7 +33,14 @@ step. See [joint release procedure and qualification](docs/joint-release.md).
 
 - Source GUI checks use a private session bus and bounded event waits, with
   a regression that detects a continuously busy event-loop stall. Its watchdog
-  also builds with GLib 2.72, retaining identical subprocess flags.
+  also builds with GLib 2.72, retaining identical subprocess flags. CI
+  settings/state are private to each check; the connected-preferences fixture
+  also preserves its subprocess persistence test with its own configuration.
+  Secondary-window zoom checks await GTK allocation with the same geometry
+  and tolerance, instead of assuming a fixed scheduling delay.
+- Mixer Settings disconnects callbacks before retiring its draft; old tabs and
+  controls cannot access freed state or affect a replacement window. Temporary
+  card tests follow the same SnapshotPanel model-retirement contract as the app.
 - The private mixer source keeps its Ubuntu 22.04/24.04 GitHub checks on
   isolated local VM runners, avoiding paid GitHub-hosted compute. Mint/Fedora
   distribution CI continues on the public repository's standard runners.
@@ -198,18 +205,20 @@ rme-native-host oscmix-ufxplus`; user settings are not removed by package remova
 
 ## Scope and qualification
 
-This is community packaging, not an official RME driver. This candidate bundle
-combines three packages from two component prereleases; the suite's build checks verify
-package identity, archive contents and checksums. CI does not install the
-packages into a VM or test USB audio.
+This is community packaging, not an official RME driver. This experimental
+bundle combines three packages from two component prereleases. CI verifies
+package identities, archive contents and checksums, then exercises real Mint
+installation/upgrade/removal in a container and Fedora RPM transactions in a
+private chroot. Their disposable kernel helpers are fixtures; these checks do
+not qualify boot, Secure Boot or USB audio. The mixer source regression matrix
+runs separately in isolated local Ubuntu 22.04 and 24.04 VMs.
 
-The preceding two-package suite `0.1.0-alpha.1` passed manual Mint 22 and
-Ubuntu 24.04 VM installation tests. Those results do not qualify this new
-three-package transaction. The candidate needs fresh VM and physical checks
-for Babyface, UFX+ and Digiface Dante before normal installation is advised.
+Earlier manual Mint/Ubuntu VM tests and the host20 → host21 Mint VM DKMS/boot
+test retain their documented scope; they do not qualify this exact three-package
+release or physical Babyface, UFX+ and Digiface Dante operation. Current-release
+VM boot and physical checks remain open before normal installation is advised.
 
-The Fedora checks and their limits are documented separately above. Secure Boot
-and physical three-card qualification are not claimed for this candidate. Component
+The Fedora checks and their limits are documented separately above. Component
 release notes describe their separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.
