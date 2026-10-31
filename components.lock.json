@@ -52,7 +52,7 @@
         "copyright_path": "usr/share/doc/rme-native-host/copyright"
       },
       "source_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/commit/d9ddb6d732a97bf34d2c8ecd12012748af86ab7b",
-      "provenance": "Unchanged alpha.21 candidate package already included in published suite alpha.4; release alpha.13 will expose this exact package asset.",
+      "provenance": "Unchanged alpha.21 package already included in published suite alpha.4; published release alpha.13 exposes this exact package asset.",
       "build_inputs": {
         "rate_binary_sha256": "1737936fa5b71088d107d0fcb52e69a75f1625af773f75530b05db93e2cef9aa",
         "rate_binary_deb_sha256": "dc50af53815b0f188e7535295282bd34c32ec3a9539764e509bbedbbd27416fd",
@@ -63,7 +63,7 @@
     "mixer": {
       "repository": "charlysound/TotalMixLike",
       "tag": "v0.2.0-alpha.67+commands.2",
-      "commit": "33cfc26616806da4b2bc92edaed5f44c6a10dba2",
+      "commit": "f807527eb862ceeb7a3a8e74bf62e3da243f92df",
       "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.67%2Bcommands.2",
       "package": {
         "name": "oscmix-ufxplus",
@@ -71,7 +71,7 @@
         "architecture": "amd64",
         "file": "oscmix-ufxplus_0.2.0-alpha.67+commands.2_amd64.deb",
         "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.67%2Bcommands.2/oscmix-ufxplus_0.2.0-alpha.67%2Bcommands.2_amd64.deb",
-        "sha256": "15ee064c3a704c8701196c3a288322ac56c8c8d2edee1431f39010c6fc26eb7a",
+        "sha256": "9d23c313b96209e0c1135616961cef511918f81725f58db041c275218296000e",
         "copyright_path": "usr/share/doc/oscmix-ufxplus/LICENSE"
       },
       "build_inputs": {

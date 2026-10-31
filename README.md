@@ -33,6 +33,9 @@ step. See [joint release procedure and qualification](docs/joint-release.md).
 
 - Source GUI checks use a private session bus and bounded event waits, with
   a regression that detects a continuously busy event-loop stall.
+- The private mixer source keeps its Ubuntu 22.04/24.04 GitHub checks on
+  isolated local VM runners, avoiding paid GitHub-hosted compute. Mint/Fedora
+  distribution CI continues on the public repository's standard runners.
 
 ## Fedora 44 experimental distribution
 

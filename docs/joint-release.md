@@ -31,6 +31,11 @@ passive USB identity catalogue, which carries no permission policy.
 
 ## Automated checks
 
+- TotalMixLike's private source repository uses local VM runners labelled
+  `ubuntu-22.04` and `ubuntu-24.04` for its unchanged source regression matrix.
+  Both VMs must be running before requesting a check. This avoids paid hosted
+  compute while keeping the repository private and results visible on GitHub.
+  The public distribution repository retains its standard GitHub-hosted CI.
 - The Ubuntu build job constructs the Mint archive and checks installer OS
   gates (Mint 22, 22.1, 22.2, 22.3; reject 23), backups, rollback authorization,
   checksums and removal dispatch.
