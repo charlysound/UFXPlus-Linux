@@ -16,6 +16,8 @@ import tempfile
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('packages', type=Path)
+    parser.add_argument('--previous', type=Path, required=True,
+                        help='Published Mint suite packages for an actual version upgrade')
     args = parser.parse_args()
     if os.geteuid() != 0 or not Path('/.dockerenv').exists():
         raise SystemExit('Run only as root in a disposable Docker CI container')
@@ -23,6 +25,15 @@ def main():
                 for p in args.packages.glob('*.deb')}
     if set(packages) != {'ufxplus-driver', 'rme-native-host', 'oscmix-ufxplus'}:
         raise SystemExit('Expected the three pinned DEBs')
+    previous = {subprocess.check_output(['dpkg-deb', '-f', str(p), 'Package'], text=True).strip(): str(p.resolve())
+                for p in args.previous.glob('*.deb')}
+    if set(previous) != set(packages):
+        raise SystemExit('Expected the three published baseline DEBs')
+    versions = lambda source: {name: subprocess.check_output(['dpkg-deb', '-f', package, 'Version'], text=True).strip()
+                              for name, package in source.items()}
+    before_versions, after_versions = versions(previous), versions(packages)
+    subprocess.run(['dpkg', '--compare-versions', before_versions['oscmix-ufxplus'], 'lt',
+                    after_versions['oscmix-ufxplus']], check=True)
     for name in packages:
         result = subprocess.run(['dpkg-query', '-W', '-f=${db:Status-Status}', name], capture_output=True, text=True)
         if result.stdout == 'installed':
@@ -69,9 +80,19 @@ esac
         sentinel.parent.mkdir(parents=True, exist_ok=True); sentinel.write_text('keep settings\n')
         dpkg('--force-depends', '-i', packages['rme-native-host'], packages['oscmix-ufxplus'])
         assert (work/'registered').is_file()
+        # Qualify a fresh candidate installation separately from the upgrade.
+        dpkg('--force-depends', '-r', 'rme-native-host', 'oscmix-ufxplus', 'ufxplus-driver')
+        assert not (work/'registered').exists()
+        assert sentinel.read_text() == 'keep settings\n'
+        dpkg('--force-depends', '-i', previous['ufxplus-driver'])
+        dpkg('--force-depends', '-i', previous['rme-native-host'], previous['oscmix-ufxplus'])
+        assert (work/'registered').is_file()
         (work/'calls').write_text('')
-        dpkg('--force-depends', '-i', packages['rme-native-host'])
+        dpkg('--force-depends', '-i', *[packages[name] for name in ('ufxplus-driver', 'rme-native-host', 'oscmix-ufxplus')])
         assert not any(line.startswith('remove ') for line in (work/'calls').read_text().splitlines())
+        for name, version in after_versions.items():
+            assert subprocess.check_output(['dpkg-query', '-W', '-f=${Version}', name], text=True).strip() == version
+        assert sentinel.read_text() == 'keep settings\n'
         (work/'deny').touch()
         denied = dpkg('--force-depends', '-r', 'rme-native-host', ok=False)
         assert denied.returncode != 0, 'Failed DKMS removal must block package removal'
@@ -84,6 +105,7 @@ esac
         assert sentinel.read_text() == 'keep settings\n'
         assert not Path('/usr/src/rme-pcm-0.1.0/dkms.conf').exists()
         print(json.dumps(dict(environment='Mint container; real dpkg, fake DKMS', install='pass',
+                              upgrade_from=before_versions, upgrade_to=after_versions,
                               upgrade_preserves_registration='pass', failed_removal_preserves_sources='pass',
                               removal='pass', diversions_restored='pass', settings_preserved='pass'), indent=2))
 

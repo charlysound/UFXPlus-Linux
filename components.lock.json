@@ -63,7 +63,7 @@
     "mixer": {
       "repository": "charlysound/TotalMixLike",
       "tag": "v0.2.0-alpha.67+commands.2",
-      "commit": "7f0e78774d54b544c30c415f16d3875b249f7906",
+      "commit": "f4a82413b2f43756cf50d4b2dd76047720963e34",
       "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.67%2Bcommands.2",
       "package": {
         "name": "oscmix-ufxplus",
@@ -71,8 +71,18 @@
         "architecture": "amd64",
         "file": "oscmix-ufxplus_0.2.0-alpha.67+commands.2_amd64.deb",
         "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.67%2Bcommands.2/oscmix-ufxplus_0.2.0-alpha.67%2Bcommands.2_amd64.deb",
-        "sha256": "6233c8faf7ed2cd6dfd3d3ab9e33387760e1e04f62035fc02deb2e487d69de51",
+        "sha256": "96cfe5391d8197cd95edcb7056ee493b6e06fa404b575803518dd809630ad5d0",
         "copyright_path": "usr/share/doc/oscmix-ufxplus/LICENSE"
+      },
+      "build_inputs": {
+        "runtime_source_commit": "5a8c4003766aa68828e14eb1e25d4811e98d9220",
+        "runtime_manifest_sha256": "871c224a70fc1539a7116b790f05cac08e6bc39db1c58e258f50feaee348c209",
+        "control_source_commit": "fe6f4fe7c2ce89c18f468a8cd82bde6c53fd416e",
+        "control_sha256": "abee968958cea99173ae4800daddc470320397ca4aae70f56ad1ed77005abded",
+        "runtime_source_archive": "rme-runtime_5a8c400_source.tar.gz",
+        "runtime_source_archive_sha256": "e5bf8ba5fce67688648b0695f657001c3f52a8a2e3c49455b68432266d6cddd0",
+        "control_source_archive": "rme-control_fe6f4fe_source.tar.gz",
+        "control_source_archive_sha256": "ffcd411970b442583815cc44734fd4a81c2ff386ebd75b9f46765d7d782218d6"
       }
     }
   }

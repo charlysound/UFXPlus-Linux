@@ -35,6 +35,9 @@ while IFS=$'\t' read -r component file expected copyright package version archit
     extract="$WORK/extract-$component"
     mkdir -p "$extract"
     dpkg-deb -x "$STAGE/packages/$file" "$extract"
+    if [[ "$component" == mixer ]]; then
+        python3 "$ROOT/tools/verify-mixer-payload.py" "$extract" "$ROOT/components.lock.json"
+    fi
     [[ -f "$extract/$copyright" ]] || { echo "Missing component copyright: $copyright" >&2; exit 1; }
     cp -- "$extract/$copyright" "$STAGE/licenses/$component-copyright"
 done <"$WORK/assets.tsv"

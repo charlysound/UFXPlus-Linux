@@ -21,8 +21,11 @@ owner/busy guards.
 Fedora retains its separate, atomic dracut migration adapter. The common guard
 is maintained in the driver repository; the distribution copy is checked
 against the bytes in the pinned host DEB. Do not edit model-specific copies.
-Alpha.67 no longer contains the prior shared USB uaccess rule. The Fedora RPM
-keeps the exact rule already shipped by the alpha.4 adapter, pinned as
+The mixer includes the audio/MIDI runtime at source `5a8c400` and control
+producer at `fe6f4fe`, retained from the qualified alpha.66 installation.
+The lock records their manifest and binary hashes. Both archive builders
+verify the complete payload before packaging.
+The Fedora RPM keeps the exact USB rule already shipped by the alpha.4 adapter, pinned as
 `packaging/fedora/70-rme-native.rules`; it is not generated from alpha.67's
 passive USB identity catalogue, which carries no permission policy.
 
@@ -34,7 +37,8 @@ passive USB identity catalogue, which carries no permission policy.
 - A digest-pinned [Mint 22 image](https://hub.docker.com/r/linuxmintd/mint22-amd64)
   installs Mint's signed `base-files` package from its Mint repository, checks
   the resulting real os-release and archive preflight, then runs real dpkg
-  installation, host upgrade/reinstallation, failed removal and final removal.
+  fresh candidate installation, a real alpha.51 → alpha.67 upgrade from the
+  checksum-pinned published alpha.4 suite, failed removal and final removal.
   DKMS is a fixture: this proves hook dispatch, source retention, diversion
   restoration and settings preservation, not a kernel build or hardware audio.
 - Fedora 44 builds the RPMs, verifies their identity, exercises installation,

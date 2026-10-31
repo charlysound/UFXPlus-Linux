@@ -23,6 +23,10 @@ step. See [joint release procedure and qualification](docs/joint-release.md).
   checked directly against the recorded alpha.4 policy fingerprint.
 - Both archives must pass installation, upgrade and removal checks before
   the release can be staged.
+- The mixer includes the manifest-verified audio/MIDI runtime and matching
+  control producer. Both archive builders reject missing or mismatched inputs.
+- Mint checks a fresh installation and the real alpha.51 → alpha.67 package
+  upgrade from the published alpha.4 suite, preserving settings.
 
 ## Fedora 44 experimental distribution
 
@@ -30,9 +34,9 @@ The Fedora archive uses the three component releases pinned below and native RPM
 ownership and DNF dependencies. It packages the same pinned driver payloads as
 the Mint archive and includes the updated TotalMixLike alpha.67 package. Its small
 common ALSA module source includes a pinned Linux header compatibility fix,
-recorded in `fedora-manifest.json`; this is shared by every card model. Since
-alpha.67 no longer ships the shared USB uaccess rule, the Fedora adapter retains
-the exact rule from the previous alpha.51 package. It does not derive device
+recorded in `fedora-manifest.json`; this is shared by every card model. The
+Fedora adapter retains the exact USB uaccess rule from the previous alpha.51
+package. It does not derive device
 permissions from alpha.67's passive identity catalogue. The Mint DEB and Fedora
 RPM carry the same patched module source and shared lifecycle guard.
 
