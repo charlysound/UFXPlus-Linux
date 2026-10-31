@@ -31,6 +31,9 @@ step. See [joint release procedure and qualification](docs/joint-release.md).
 - Native FX panels stay aligned when nested preset menus open; offline USB
   service regression checks preserve cadence and pipe-priority coverage.
 
+- Source GUI checks use a private session bus and bounded event waits, with
+  a regression that detects a continuously busy event-loop stall.
+
 ## Fedora 44 experimental distribution
 
 The Fedora archive uses the three component releases pinned below and native RPM

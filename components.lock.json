@@ -63,7 +63,7 @@
     "mixer": {
       "repository": "charlysound/TotalMixLike",
       "tag": "v0.2.0-alpha.67+commands.2",
-      "commit": "40ea9eff69f056772afeb2fd328d4e6fb67b17ac",
+      "commit": "33cfc26616806da4b2bc92edaed5f44c6a10dba2",
       "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.67%2Bcommands.2",
       "package": {
         "name": "oscmix-ufxplus",
@@ -71,7 +71,7 @@
         "architecture": "amd64",
         "file": "oscmix-ufxplus_0.2.0-alpha.67+commands.2_amd64.deb",
         "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.67%2Bcommands.2/oscmix-ufxplus_0.2.0-alpha.67%2Bcommands.2_amd64.deb",
-        "sha256": "97136a8b56945d8dde739a4e896f110d858c4e5c7d34b15e0e3db19508da6584",
+        "sha256": "15ee064c3a704c8701196c3a288322ac56c8c8d2edee1431f39010c6fc26eb7a",
         "copyright_path": "usr/share/doc/oscmix-ufxplus/LICENSE"
       },
       "build_inputs": {
