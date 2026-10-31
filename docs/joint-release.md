@@ -1,24 +1,23 @@
 # Joint Mint 22 / Fedora 44 candidate
 
-Suite `0.1.0-alpha.4+devices.35` delivers two architecture-specific archives
+Suite `0.1.0-alpha.5+devices.35` delivers two architecture-specific archives
 under one version. Use the DEB archive on Mint 22.x / Ubuntu 24.04 amd64 and
 the RPM archive on Fedora 44 x86_64. Each includes its installer, exact component
 lock and checksums. The release also has a combined `SHA256SUMS` for both archives.
 
 ## Shared implementation and source dependency
 
-The host is `0.1.0~alpha.21+devices.35`, built from driver commit
-`d9ddb6d732a97bf34d2c8ecd12012748af86ab7b` in
-[driver PR #9](https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/pull/9).
-Review and integrate that packaging change into the devices35 candidate before
-publishing this joint suite. The broader driver PR to main is a separate change.
-The host's tag/asset URLs are null because this is a committed candidate, not an
-invented published component release. Rebuilding requires that exact source and
-the guarded rate binary extracted from the old pinned host DEB; both hashes are
-recorded in `components.lock.json` and the package records its source identity.
+The host is `0.1.0~alpha.21+devices.35`; the mixer is
+`0.2.0~alpha.67+commands.2`. The refreshed lock records the immutable component
+tags, commits, asset URLs and checksums. OSCmix includes ARC preamp assignments,
+paired Mic/Inst gain commands, Dynamics Gain 1–4, programmable F4–F8 actions and
+safe USB protocol handover. The software test suite does not qualify physical
+ARC buttons, LEDs, wheel behavior or native executed-pixel parity.
 
-The audio core and mixer binaries are unchanged. Both archives contain the
-same corrected common module C source and model-independent owner/busy guards.
+The UFX+ driver payload remains the established alpha.12 package and the shared
+host is alpha.21; TotalMixLike advances from alpha.51 to alpha.67. Both archives
+contain the same corrected common module C source and model-independent
+owner/busy guards.
 Fedora retains its separate, atomic dracut migration adapter. The common guard
 is maintained in the driver repository; the distribution copy is checked
 against the bytes in the pinned host DEB. Do not edit model-specific copies.
@@ -64,6 +63,6 @@ and do not imply the new RPM `5.fc44` was installed on that machine.
 3. The tag workflow builds and tests both targets, then creates one **draft
    prerelease**, with exactly the two archives and their combined checksum file.
 4. Review the draft's files and qualification notes, then publish it explicitly.
-   Do not replace the existing alpha.3 assets or claim stable hardware support.
+   Keep the existing alpha.4 assets intact and do not claim stable hardware support.
 
 No new tag, merge or release publication is required merely to review this PR.

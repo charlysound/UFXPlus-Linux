@@ -2,11 +2,13 @@
 
 ## Joint Mint 22 / Fedora 44 candidate
 
-This PR prepares suite `0.1.0-alpha.4+devices.35`, with two archives under one
+This PR prepares suite `0.1.0-alpha.5+devices.35`, with two archives under one
 release: `*_amd64.tar.gz` for Mint 22.x / Ubuntu 24.04 and
-`*_fedora44_x86_64.tar.gz` for Fedora 44. The pinned host candidate depends on
-[driver PR #9](https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/pull/9).
-It is not yet a published component release. Driver and mixer binaries are unchanged.
+`*_fedora44_x86_64.tar.gz` for Fedora 44. It pins the driver alpha.13 release
+(UFX+ package alpha.12 and shared host alpha.21) with TotalMixLike alpha.67.
+OSCmix adds ARC preamp assignments, paired preamp gains, Dynamics, F4–F8 actions
+and guarded USB protocol handover. Software tests do not qualify physical ARC
+buttons, LEDs or wheel behavior.
 
 Both CI targets must pass before a version tag can create a release draft with
 both archives and a combined `SHA256SUMS`. Publication remains an explicit final
@@ -15,11 +17,12 @@ step. See [joint release procedure and qualification](docs/joint-release.md).
 ## Fedora 44 experimental distribution
 
 The Fedora archive uses the three component releases pinned below and native RPM
-ownership and DNF dependencies. Audio core and GUI binaries are unchanged. Its
-small common ALSA module source includes a pinned Linux header compatibility fix,
+ownership and DNF dependencies. It packages the same pinned driver payloads as
+the Mint archive and includes the updated TotalMixLike alpha.67 package. Its small
+common ALSA module source includes a pinned Linux header compatibility fix,
 recorded in `fedora-manifest.json`; this is shared by every card model. The Mint DEB and Fedora RPM now carry the same patched module source and shared lifecycle guard.
 
-Extract `ufxplus-linux-suite_0.1.0-alpha.4+devices.35_fedora44_x86_64.tar.gz`, then
+Extract `ufxplus-linux-suite_0.1.0-alpha.5+devices.35_fedora44_x86_64.tar.gz`, then
 run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
 and checksums; `--preflight-only` reports the actual platform and kernel build
 tree. The installer backs up XDG settings and refuses upgrades while a component
@@ -73,13 +76,13 @@ names and independent release histories intact.
 
 ## Three-family candidate bundle
 
-Suite `0.1.0-alpha.4+devices.35` pins two component prereleases and the updated host candidate:
+Suite `0.1.0-alpha.5+devices.35` pins two component prereleases and the updated host package:
 
 | Component | Version | Supported package target |
 | --- | --- | --- |
 | UFX+ USB3 driver | `0.1.0~alpha.12+devices.35` | `amd64` Debian package |
 | Shared RME Linux host | `0.1.0~alpha.21+devices.35` | `amd64` Debian package |
-| TotalMixLike | `0.2.0~alpha.51+devices.35` | `amd64` Debian package |
+| TotalMixLike | `0.2.0~alpha.67+commands.2` | `amd64` Debian package |
 
 The exact release tags, commits, assets and SHA-256 values are in
 [`components.lock.json`](components.lock.json). The original Debian archive targets
