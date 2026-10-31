@@ -1,4 +1,4 @@
-# Joint Mint 22 / Fedora 44 candidate
+# Joint Mint 22 / Fedora 44 experimental release
 
 Suite `0.1.0-alpha.5+devices.35` delivers two architecture-specific archives
 under one version. Use the DEB archive on Mint 22.x / Ubuntu 24.04 amd64 and

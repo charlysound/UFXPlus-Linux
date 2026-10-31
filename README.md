@@ -1,8 +1,8 @@
 # UFX+ Linux
 
-## Joint Mint 22 / Fedora 44 candidate
+## Joint Mint 22 / Fedora 44 experimental release
 
-This PR prepares suite `0.1.0-alpha.5+devices.35`, with two archives under one
+Suite `0.1.0-alpha.5+devices.35` combines the components in two archives under one
 release: `*_amd64.tar.gz` for Mint 22.x / Ubuntu 24.04 and
 `*_fedora44_x86_64.tar.gz` for Fedora 44. It pins the driver alpha.13 release
 (UFX+ package alpha.12 and shared host alpha.21) with TotalMixLike alpha.67.
@@ -32,7 +32,8 @@ step. See [joint release procedure and qualification](docs/joint-release.md).
   service regression checks preserve cadence and pipe-priority coverage.
 
 - Source GUI checks use a private session bus and bounded event waits, with
-  a regression that detects a continuously busy event-loop stall.
+  a regression that detects a continuously busy event-loop stall. Its watchdog
+  also builds with GLib 2.72, retaining identical subprocess flags.
 - The private mixer source keeps its Ubuntu 22.04/24.04 GitHub checks on
   isolated local VM runners, avoiding paid GitHub-hosted compute. Mint/Fedora
   distribution CI continues on the public repository's standard runners.
@@ -101,7 +102,7 @@ A single download for the experimental RME driver, shared Linux host and
 TotalMixLike. This distribution keeps the two component repositories, service
 names and independent release histories intact.
 
-## Three-family candidate bundle
+## Experimental three-family bundle
 
 Suite `0.1.0-alpha.5+devices.35` pins two component prereleases and the updated host package:
 
