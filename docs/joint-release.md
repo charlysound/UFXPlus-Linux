@@ -21,6 +21,10 @@ owner/busy guards.
 Fedora retains its separate, atomic dracut migration adapter. The common guard
 is maintained in the driver repository; the distribution copy is checked
 against the bytes in the pinned host DEB. Do not edit model-specific copies.
+Alpha.67 no longer contains the prior shared USB uaccess rule. The Fedora RPM
+keeps the exact rule already shipped by the alpha.4 adapter, pinned as
+`packaging/fedora/70-rme-native.rules`; it is not generated from alpha.67's
+passive USB identity catalogue, which carries no permission policy.
 
 ## Automated checks
 

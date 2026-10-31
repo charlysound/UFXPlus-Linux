@@ -20,7 +20,11 @@ The Fedora archive uses the three component releases pinned below and native RPM
 ownership and DNF dependencies. It packages the same pinned driver payloads as
 the Mint archive and includes the updated TotalMixLike alpha.67 package. Its small
 common ALSA module source includes a pinned Linux header compatibility fix,
-recorded in `fedora-manifest.json`; this is shared by every card model. The Mint DEB and Fedora RPM now carry the same patched module source and shared lifecycle guard.
+recorded in `fedora-manifest.json`; this is shared by every card model. Since
+alpha.67 no longer ships the shared USB uaccess rule, the Fedora adapter retains
+the exact rule from the previous alpha.51 package. It does not derive device
+permissions from alpha.67's passive identity catalogue. The Mint DEB and Fedora
+RPM carry the same patched module source and shared lifecycle guard.
 
 Extract `ufxplus-linux-suite_0.1.0-alpha.5+devices.35_fedora44_x86_64.tar.gz`, then
 run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities

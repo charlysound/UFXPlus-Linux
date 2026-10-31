@@ -21,9 +21,16 @@ EOF
     dpkg-deb --build "$work" "$BUNDLE/packages/$filename" >/dev/null
 }
 
-make_deb ufxplus-driver '0.1.0~alpha.12+devices.35' 'ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb'
-make_deb rme-native-host '0.1.0~alpha.21+devices.35' 'rme-native-host_0.1.0-alpha.21+devices.35_amd64.deb'
-make_deb oscmix-ufxplus '0.2.0~alpha.51+devices.35' 'oscmix-ufxplus_0.2.0-alpha.51+devices.35_amd64.deb'
+while IFS=$'\t' read -r name version filename; do
+    make_deb "$name" "$version" "$filename"
+done < <(python3 - "$BUNDLE/components.lock.json" <<'PY'
+import json, sys
+lock=json.load(open(sys.argv[1],encoding='utf-8'))
+for component in ('driver','host','mixer'):
+    package=lock['components'][component]['package']
+    print('\t'.join((package['name'],package['version'],package['file'])))
+PY
+)
 python3 - "$BUNDLE/components.lock.json" "$BUNDLE/packages" <<'PY'
 import hashlib, json, sys
 path, packages=sys.argv[1:]

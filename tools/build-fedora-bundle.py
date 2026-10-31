@@ -99,7 +99,10 @@ def build(output, fedora):
             raise ValueError('Shared lifecycle guard differs from the pinned host')
         native_rule=payloads['mixer']/'usr/lib/udev/rules.d/70-rme-native.rules'
         native_rule.parent.mkdir(parents=True,exist_ok=True)
-        shutil.copy2(payloads['mixer']/'usr/lib/oscmix-ufxplus/rme-runtime/70-rme-audio-preview.rules',native_rule)
+        # Alpha.67 no longer ships the shared USB access rule. Preserve the
+        # exact rule already used by the alpha.4 Fedora adapter; the passive
+        # identity catalogue in alpha.67 is not an authorization source.
+        shutil.copy2(ROOT/'packaging/fedora/70-rme-native.rules',native_rule)
         helper = payloads['host']/'usr/libexec/ufxplus-linux/fedora-admin'
         helper.parent.mkdir(parents=True);shutil.copyfile(ROOT/'packaging/fedora/admin.py',helper);helper.chmod(0o755)
         kernel = payloads['host']/'usr/src/rme-pcm-0.1.0'
