@@ -1,25 +1,63 @@
 # UFX+ Linux
 
-## Joint Mint 22 / Fedora 44 candidate
+## Joint Mint 22 / Fedora 44 experimental release
 
-This PR prepares suite `0.1.0-alpha.4+devices.35`, with two archives under one
+Suite `0.1.0-alpha.5+devices.35` combines the components in two archives under one
 release: `*_amd64.tar.gz` for Mint 22.x / Ubuntu 24.04 and
-`*_fedora44_x86_64.tar.gz` for Fedora 44. The pinned host candidate depends on
-[driver PR #9](https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/pull/9).
-It is not yet a published component release. Driver and mixer binaries are unchanged.
+`*_fedora44_x86_64.tar.gz` for Fedora 44. It pins the driver alpha.13 release
+(UFX+ package alpha.12 and shared host alpha.21) with TotalMixLike alpha.67.
+OSCmix adds ARC preamp assignments, paired preamp gains, Dynamics, F4–F8 actions
+and guarded USB protocol handover. Software tests do not qualify physical ARC
+buttons, LEDs or wheel behavior.
 
 Both CI targets must pass before a version tag can create a release draft with
 both archives and a combined `SHA256SUMS`. Publication remains an explicit final
 step. See [joint release procedure and qualification](docs/joint-release.md).
 
+## What's New in alpha.5
+
+- TotalMixLike advances from alpha.51 to alpha.67, including ARC preamp
+  assignments, paired gain commands, Dynamics Gain 1–4 and F4–F8 actions.
+- Mint and Fedora packaging checks follow the pinned component versions.
+- Fedora preserves the previously shipped USB access rule; its SHA-256 is
+  checked directly against the recorded alpha.4 policy fingerprint.
+- Both archives must pass installation, upgrade and removal checks before
+  the release can be staged.
+- The mixer includes the manifest-verified audio/MIDI runtime and matching
+  control producer. Both archive builders reject missing or mismatched inputs.
+- Mint checks a fresh installation and the real alpha.51 → alpha.67 package
+  upgrade from the published alpha.4 suite, preserving settings.
+
+- Native FX panels stay aligned when nested preset menus open; offline USB
+  service regression checks preserve cadence and pipe-priority coverage.
+
+- Source GUI checks use a private session bus and bounded event waits, with
+  a regression that detects a continuously busy event-loop stall. Its watchdog
+  also builds with GLib 2.72, retaining identical subprocess flags. CI
+  settings/state are private to each check; the connected-preferences fixture
+  also preserves its subprocess persistence test with its own configuration.
+  Secondary-window zoom checks await GTK allocation with the same geometry
+  and tolerance, instead of assuming a fixed scheduling delay.
+- Mixer Settings disconnects callbacks before retiring its draft; old tabs and
+  controls cannot access freed state or affect a replacement window. Temporary
+  card tests follow the same SnapshotPanel model-retirement contract as the app.
+- The private mixer source keeps its Ubuntu 22.04/24.04 GitHub checks on
+  isolated local VM runners, avoiding paid GitHub-hosted compute. Mint/Fedora
+  distribution CI continues on the public repository's standard runners.
+
 ## Fedora 44 experimental distribution
 
 The Fedora archive uses the three component releases pinned below and native RPM
-ownership and DNF dependencies. Audio core and GUI binaries are unchanged. Its
-small common ALSA module source includes a pinned Linux header compatibility fix,
-recorded in `fedora-manifest.json`; this is shared by every card model. The Mint DEB and Fedora RPM now carry the same patched module source and shared lifecycle guard.
+ownership and DNF dependencies. It packages the same pinned driver payloads as
+the Mint archive and includes the updated TotalMixLike alpha.67 package. Its small
+common ALSA module source includes a pinned Linux header compatibility fix,
+recorded in `fedora-manifest.json`; this is shared by every card model. The
+Fedora adapter retains the exact USB uaccess rule from the previous alpha.51
+package. It does not derive device
+permissions from alpha.67's passive identity catalogue. The Mint DEB and Fedora
+RPM carry the same patched module source and shared lifecycle guard.
 
-Extract `ufxplus-linux-suite_0.1.0-alpha.4+devices.35_fedora44_x86_64.tar.gz`, then
+Extract `ufxplus-linux-suite_0.1.0-alpha.5+devices.35_fedora44_x86_64.tar.gz`, then
 run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
 and checksums; `--preflight-only` reports the actual platform and kernel build
 tree. The installer backs up XDG settings and refuses upgrades while a component
@@ -71,15 +109,15 @@ A single download for the experimental RME driver, shared Linux host and
 TotalMixLike. This distribution keeps the two component repositories, service
 names and independent release histories intact.
 
-## Three-family candidate bundle
+## Experimental three-family bundle
 
-Suite `0.1.0-alpha.4+devices.35` pins two component prereleases and the updated host candidate:
+Suite `0.1.0-alpha.5+devices.35` pins two component prereleases and the updated host package:
 
 | Component | Version | Supported package target |
 | --- | --- | --- |
 | UFX+ USB3 driver | `0.1.0~alpha.12+devices.35` | `amd64` Debian package |
 | Shared RME Linux host | `0.1.0~alpha.21+devices.35` | `amd64` Debian package |
-| TotalMixLike | `0.2.0~alpha.51+devices.35` | `amd64` Debian package |
+| TotalMixLike | `0.2.0~alpha.67+commands.2` | `amd64` Debian package |
 
 The exact release tags, commits, assets and SHA-256 values are in
 [`components.lock.json`](components.lock.json). The original Debian archive targets
@@ -167,18 +205,20 @@ rme-native-host oscmix-ufxplus`; user settings are not removed by package remova
 
 ## Scope and qualification
 
-This is community packaging, not an official RME driver. This candidate bundle
-combines three packages from two component prereleases; the suite's build checks verify
-package identity, archive contents and checksums. CI does not install the
-packages into a VM or test USB audio.
+This is community packaging, not an official RME driver. This experimental
+bundle combines three packages from two component prereleases. CI verifies
+package identities, archive contents and checksums, then exercises real Mint
+installation/upgrade/removal in a container and Fedora RPM transactions in a
+private chroot. Their disposable kernel helpers are fixtures; these checks do
+not qualify boot, Secure Boot or USB audio. The mixer source regression matrix
+runs separately in isolated local Ubuntu 22.04 and 24.04 VMs.
 
-The preceding two-package suite `0.1.0-alpha.1` passed manual Mint 22 and
-Ubuntu 24.04 VM installation tests. Those results do not qualify this new
-three-package transaction. The candidate needs fresh VM and physical checks
-for Babyface, UFX+ and Digiface Dante before normal installation is advised.
+Earlier manual Mint/Ubuntu VM tests and the host20 → host21 Mint VM DKMS/boot
+test retain their documented scope; they do not qualify this exact three-package
+release or physical Babyface, UFX+ and Digiface Dante operation. Current-release
+VM boot and physical checks remain open before normal installation is advised.
 
-The Fedora checks and their limits are documented separately above. Secure Boot
-and physical three-card qualification are not claimed for this candidate. Component
+The Fedora checks and their limits are documented separately above. Component
 release notes describe their separate qualification and limitations.
 
 Checksums detect accidental corruption; they do not authenticate the publisher.

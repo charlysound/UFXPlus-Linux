@@ -78,7 +78,8 @@ jobs:
           ./install.sh --verify-only
           ./install.sh --preflight-only
           cd ../..
-          python3 tests/test-deb-lifecycle.py mint-input/ufxplus-linux-suite/packages
+          python3 tools/fetch-lifecycle-baseline.py previous-mint --target mint
+          python3 tests/test-deb-lifecycle.py mint-input/ufxplus-linux-suite/packages --previous previous-mint
 
   bundle:
     name: bundle

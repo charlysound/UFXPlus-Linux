@@ -19,6 +19,13 @@ builder=module('fedora_builder','tools/build-fedora-bundle.py')
 installer=module('fedora_installer','packaging/fedora/install.py')
 
 class FedoraTests(unittest.TestCase):
+    def test_fedora_usb_rule_matches_the_previously_shipped_adapter_digest(self):
+        # Digest recorded from alpha.51's rme-runtime/70-rme-audio-preview.rules,
+        # the exact policy shipped in suite alpha.4. Checking that immutable
+        # digest avoids depending on a historical DEB compression format.
+        adapter_rule=ROOT/'packaging/fedora/70-rme-native.rules'
+        self.assertEqual(builder.digest(adapter_rule),'99d983559e3e7489eade234da520ce9561aaa1c2231728a342ddd307f473bca1')
+
     def test_mint_and_fedora_use_the_pinned_shared_kernel_and_guard(self):
         lock=json.loads((ROOT/'components.lock.json').read_text())
         host=lock['components']['host']
