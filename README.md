@@ -28,6 +28,9 @@ step. See [joint release procedure and qualification](docs/joint-release.md).
 - Mint checks a fresh installation and the real alpha.51 → alpha.67 package
   upgrade from the published alpha.4 suite, preserving settings.
 
+- Native FX panels stay aligned when nested preset menus open; offline USB
+  service regression checks preserve cadence and pipe-priority coverage.
+
 ## Fedora 44 experimental distribution
 
 The Fedora archive uses the three component releases pinned below and native RPM
