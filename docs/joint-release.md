@@ -56,8 +56,9 @@ and do not imply the new RPM `5.fc44` was installed on that machine.
 
 ## Delivery after review
 
-1. Integrate the supporting driver PR and this distribution PR after green
-   checks. Keep the pinned build's original source commit and input hashes.
+1. Integrate the supporting driver PR, the TotalMixLike PR and this
+   distribution PR after green checks. Keep each pinned source commit and the
+   package input hashes.
 2. On the reviewed distribution commit, create and push a tag equal to
    `v` plus `components.lock.json`'s suite version.
 3. The tag workflow builds and tests both targets, then creates one **draft
