@@ -14,6 +14,16 @@ Both CI targets must pass before a version tag can create a release draft with
 both archives and a combined `SHA256SUMS`. Publication remains an explicit final
 step. See [joint release procedure and qualification](docs/joint-release.md).
 
+## What's New in alpha.5
+
+- TotalMixLike advances from alpha.51 to alpha.67, including ARC preamp
+  assignments, paired gain commands, Dynamics Gain 1–4 and F4–F8 actions.
+- Mint and Fedora packaging checks follow the pinned component versions.
+- Fedora preserves the previously shipped USB access rule; its SHA-256 is
+  checked directly against the recorded alpha.4 policy fingerprint.
+- Both archives must pass installation, upgrade and removal checks before
+  the release can be staged.
+
 ## Fedora 44 experimental distribution
 
 The Fedora archive uses the three component releases pinned below and native RPM
