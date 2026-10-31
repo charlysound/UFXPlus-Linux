@@ -74,6 +74,8 @@ def build(output, fedora):
             if digest(package) != item['package']['sha256']:
                 raise ValueError('Pinned package digest mismatch: '+key)
             stage = work/key;stage.mkdir();deb_payload(package,stage);payloads[key]=stage
+        subprocess.run(['python3',str(ROOT/'tools/verify-mixer-payload.py'),
+                        str(payloads['mixer']),str(ROOT/'components.lock.json')],check=True)
         overlap = {str(p.relative_to(payloads['driver'])) for p in payloads['driver'].rglob('*') if p.is_file() and (payloads['host']/p.relative_to(payloads['driver'])).is_file()}
         if overlap != SHARED:
             raise ValueError('Unexpected shared payload ownership: '+repr(overlap))
@@ -99,7 +101,9 @@ def build(output, fedora):
             raise ValueError('Shared lifecycle guard differs from the pinned host')
         native_rule=payloads['mixer']/'usr/lib/udev/rules.d/70-rme-native.rules'
         native_rule.parent.mkdir(parents=True,exist_ok=True)
-        shutil.copy2(payloads['mixer']/'usr/lib/oscmix-ufxplus/rme-runtime/70-rme-audio-preview.rules',native_rule)
+        # Preserve the exact permission policy shipped in the alpha.4 adapter;
+        # the passive USB identity catalogue is not an authorization source.
+        shutil.copy2(ROOT/'packaging/fedora/70-rme-native.rules',native_rule)
         helper = payloads['host']/'usr/libexec/ufxplus-linux/fedora-admin'
         helper.parent.mkdir(parents=True);shutil.copyfile(ROOT/'packaging/fedora/admin.py',helper);helper.chmod(0o755)
         kernel = payloads['host']/'usr/src/rme-pcm-0.1.0'
@@ -120,7 +124,7 @@ def build(output, fedora):
             if key=='mixer':dependencies += ['gtk4','alsa-utils','iproute','util-linux','rme-native-host = '+manifest['components']['host']['package']['version']+'-'+release]
             files = [str(p.relative_to(stage)) for p in sorted(stage.rglob('*')) if p.is_file()]
             paths = '\n'.join('/'+p for p in files)
-            license_expression='MIT AND GPL-2.0-only' if key=='host' else ('ISC' if key=='mixer' else 'MIT')
+            license_expression='MIT AND GPL-2.0-only' if key=='host' else ('ISC AND MIT' if key=='mixer' else 'MIT')
             removal = HOST_PREUN if key=='host' else ''
             spec = f'''%global debug_package %{{nil}}
 %global __os_install_post %{{nil}}
@@ -134,7 +138,7 @@ BuildArch: x86_64
 Requires: {', '.join(dependencies)}
 
 %description
-Fedora distribution adapter for the unchanged devices35 component payload.
+Fedora distribution adapter for the pinned component payload.
 Audio services and kernel module activation remain explicit user operations.
 
 %prep

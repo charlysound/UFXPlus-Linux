@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "suite": {
-    "version": "0.1.0-alpha.4+devices.35",
+    "version": "0.1.0-alpha.5+devices.35",
     "architecture": "amd64",
     "supported_systems": [
       {
@@ -24,35 +24,35 @@
   "components": {
     "driver": {
       "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
-      "tag": "v0.1.0-alpha.12+devices.35",
-      "commit": "191bdf33bfee29710fa364b7c73b5e5901665af8",
-      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.12%2Bdevices.35",
+      "tag": "v0.1.0-alpha.13+devices.35",
+      "commit": "913a379152a97c35571e3ab4b2a5b49b7c28fbd5",
+      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.13%2Bdevices.35",
       "package": {
         "name": "ufxplus-driver",
         "version": "0.1.0~alpha.12+devices.35",
         "architecture": "amd64",
         "file": "ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb",
-        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.12%2Bdevices.35/ufxplus-driver_0.1.0-alpha.12%2Bdevices.35_amd64.deb",
+        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.13%2Bdevices.35/ufxplus-driver_0.1.0-alpha.12%2Bdevices.35_amd64.deb",
         "sha256": "7482b28d0a674f92fb606e4c62b2be4d7717d475df89daacb3d956f57d1b991e",
         "copyright_path": "usr/share/doc/ufxplus-driver/copyright"
       }
     },
     "host": {
       "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
-      "tag": null,
+      "tag": "v0.1.0-alpha.13+devices.35",
       "commit": "d9ddb6d732a97bf34d2c8ecd12012748af86ab7b",
-      "release_url": null,
+      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.13%2Bdevices.35",
       "package": {
         "name": "rme-native-host",
         "version": "0.1.0~alpha.21+devices.35",
         "architecture": "amd64",
         "file": "rme-native-host_0.1.0-alpha.21+devices.35_amd64.deb",
-        "asset_url": null,
+        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.13%2Bdevices.35/rme-native-host_0.1.0-alpha.21%2Bdevices.35_amd64.deb",
         "sha256": "ea259469a5ebf0421036e0f33d33bd54ce97de7e33e1016aebf7b2c05d44aa37",
         "copyright_path": "usr/share/doc/rme-native-host/copyright"
       },
       "source_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/commit/d9ddb6d732a97bf34d2c8ecd12012748af86ab7b",
-      "provenance": "Candidate built from committed host packaging; guarded rate binary reused byte-for-byte from pinned alpha.20 DEB",
+      "provenance": "Unchanged alpha.21 package already included in published suite alpha.4; published release alpha.13 exposes this exact package asset.",
       "build_inputs": {
         "rate_binary_sha256": "1737936fa5b71088d107d0fcb52e69a75f1625af773f75530b05db93e2cef9aa",
         "rate_binary_deb_sha256": "dc50af53815b0f188e7535295282bd34c32ec3a9539764e509bbedbbd27416fd",
@@ -62,17 +62,27 @@
     },
     "mixer": {
       "repository": "charlysound/TotalMixLike",
-      "tag": "v0.2.0-alpha.51+devices.35",
-      "commit": "4ea386aad415159e16de10dd94990ff81a8e2b1e",
-      "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.51%2Bdevices.35",
+      "tag": "v0.2.0-alpha.67+commands.2",
+      "commit": "dabe12a8dcd3c9a72f92ea3e9b481229369f805e",
+      "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.67%2Bcommands.2",
       "package": {
         "name": "oscmix-ufxplus",
-        "version": "0.2.0~alpha.51+devices.35",
+        "version": "0.2.0~alpha.67+commands.2",
         "architecture": "amd64",
-        "file": "oscmix-ufxplus_0.2.0-alpha.51+devices.35_amd64.deb",
-        "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.51%2Bdevices.35/oscmix-ufxplus_0.2.0-alpha.51%2Bdevices.35_amd64.deb",
-        "sha256": "ac33f21c98f0470a01f1d82d7d0754282364724ff3f2c50bfac5123deee506b7",
+        "file": "oscmix-ufxplus_0.2.0-alpha.67+commands.2_amd64.deb",
+        "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.67%2Bcommands.2/oscmix-ufxplus_0.2.0-alpha.67%2Bcommands.2_amd64.deb",
+        "sha256": "db26074c47cdcdb2e70994a5d5f76817bd079f948b8a57544c55ff546b9f619f",
         "copyright_path": "usr/share/doc/oscmix-ufxplus/LICENSE"
+      },
+      "build_inputs": {
+        "runtime_source_commit": "5a8c4003766aa68828e14eb1e25d4811e98d9220",
+        "runtime_manifest_sha256": "871c224a70fc1539a7116b790f05cac08e6bc39db1c58e258f50feaee348c209",
+        "control_source_commit": "fe6f4fe7c2ce89c18f468a8cd82bde6c53fd416e",
+        "control_sha256": "abee968958cea99173ae4800daddc470320397ca4aae70f56ad1ed77005abded",
+        "runtime_source_archive": "rme-runtime_5a8c400_source.tar.gz",
+        "runtime_source_archive_sha256": "e5bf8ba5fce67688648b0695f657001c3f52a8a2e3c49455b68432266d6cddd0",
+        "control_source_archive": "rme-control_fe6f4fe_source.tar.gz",
+        "control_source_archive_sha256": "ffcd411970b442583815cc44734fd4a81c2ff386ebd75b9f46765d7d782218d6"
       }
     }
   }
