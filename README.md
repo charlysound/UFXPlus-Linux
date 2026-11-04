@@ -1,80 +1,92 @@
 # UFX+ Linux
 
-## Joint Mint 22 / Fedora 44 experimental release
+Experimental native RME USB audio/MIDI, shared Linux settings and
+[TotalMixLike](https://github.com/charlysound/TotalMixLike) mixer in one installer.
+This is an independent project, not an official RME driver or TotalMix release.
 
-Suite `0.1.0-alpha.5+devices.35` combines the components in two archives under one
-release: `*_amd64.tar.gz` for Mint 22.x / Ubuntu 24.04 and
-`*_fedora44_x86_64.tar.gz` for Fedora 44. It pins the driver alpha.13 release
-(UFX+ package alpha.12 and shared host alpha.21) with TotalMixLike alpha.67.
-OSCmix adds ARC preamp assignments, paired preamp gains, Dynamics, F4–F8 actions
-and guarded USB protocol handover. Software tests do not qualify physical ARC
-buttons, LEDs or wheel behavior.
+## Download and install
 
-Both CI targets must pass before a version tag can create a release draft with
-both archives and a combined `SHA256SUMS`. Publication remains an explicit final
-step. See [joint release procedure and qualification](docs/joint-release.md).
+Use the [release assets](https://github.com/charlysound/UFXPlus-Linux/releases),
+not GitHub's automatic source-code archive.
 
-## What's New in alpha.5
+- Linux Mint22.x / Ubuntu24.04 amd64: `*_amd64.tar.gz` (three DEB packages).
+- Fedora44 x86_64: `*_fedora44_x86_64.tar.gz` (three RPM packages).
 
-- TotalMixLike advances from alpha.51 to alpha.67, including ARC preamp
-  assignments, paired gain commands, Dynamics Gain 1–4 and F4–F8 actions.
-- Mint and Fedora packaging checks follow the pinned component versions.
-- Fedora preserves the previously shipped USB access rule; its SHA-256 is
-  checked directly against the recorded alpha.4 policy fingerprint.
-- Both archives must pass installation, upgrade and removal checks before
-  the release can be staged.
-- The mixer includes the manifest-verified audio/MIDI runtime and matching
-  control producer. Both archive builders reject missing or mismatched inputs.
-- Mint checks a fresh installation and the real alpha.51 → alpha.67 package
-  upgrade from the published alpha.4 suite, preserving settings.
+Both archives include an installer, exact component lock, licenses and checksums.
+Extract the appropriate archive, open a terminal inside it and run:
 
-- Native FX panels stay aligned when nested preset menus open; offline USB
-  service regression checks preserve cadence and pipe-priority coverage.
+```sh
+./install.sh --verify-only
+./install.sh --preflight-only
+./install.sh
+```
 
-- Source GUI checks use a private session bus and bounded event waits, with
-  a regression that detects a continuously busy event-loop stall. Its watchdog
-  also builds with GLib 2.72, retaining identical subprocess flags. CI
-  settings/state are private to each check; the connected-preferences fixture
-  also preserves its subprocess persistence test with its own configuration.
-  Secondary-window zoom checks await GTK allocation with the same geometry
-  and tolerance, instead of assuming a fixed scheduling delay.
-- Mixer Settings disconnects callbacks before retiring its draft; old tabs and
-  controls cannot access freed state or affect a replacement window. Temporary
-  card tests follow the same SnapshotPanel model-retirement contract as the app.
-- The private mixer source keeps its Ubuntu 22.04/24.04 GitHub checks on
-  isolated local VM runners, avoiding paid GitHub-hosted compute. Mint/Fedora
-  distribution CI continues on the public repository's standard runners.
+Run as your desktop user; the installer requests package-manager authorization.
+Do not run the GUI as root. Rust/Cargo and GTK development headers are not
+needed to use release binaries.
 
-## Fedora 44 experimental distribution
+The installer backs up XDG settings, verifies package hashes/identities and
+refuses upgrades while component services or the mixer are running. Close
+the mixer and stop the RME user services before an upgrade. This is intentional:
+replacing files does not reload an already-running owner or an app-local runtime.
+Declining optional service startup leaves activation to you.
 
-The Fedora archive uses the three component releases pinned below and native RPM
-ownership and DNF dependencies. It packages the same pinned driver payloads as
-the Mint archive and includes the updated TotalMixLike alpha.67 package. Its small
-common ALSA module source includes a pinned Linux header compatibility fix,
-recorded in `fedora-manifest.json`; this is shared by every card model. The
-Fedora adapter retains the exact USB uaccess rule from the previous alpha.51
-package. It does not derive device
-permissions from alpha.67's passive identity catalogue. The Mint DEB and Fedora
-RPM carry the same patched module source and shared lifecycle guard.
+## What's new in alpha.6
 
-Extract `ufxplus-linux-suite_0.1.0-alpha.5+devices.35_fedora44_x86_64.tar.gz`, then
-run `./install.sh` as your desktop user. `--verify-only` checks the RPM identities
-and checksums; `--preflight-only` reports the actual platform and kernel build
-tree. The installer backs up XDG settings and refuses upgrades while a component
-service is running. Packages install in one DNF transaction; services remain
-stopped until explicitly enabled.
+Suite `0.1.0-alpha.6+multicard.1` updates all three pinned components:
 
-Audio needs the external `snd-rme-pcm` ALSA module. DKMS builds this small module,
-not the RME audio core or GUI. Install the exact `kernel-devel` matching `uname -r`
-from your kernel provider, then run `sudo /usr/libexec/ufxplus-linux/fedora-admin`.
-For an Apple T2 kernel the matching T2 development package is required; generic
-Fedora headers are insufficient. Kernel loading retains the host's Secure Boot
-policy. If the current kernel headers are unavailable, DNF installs a complete
-newer kernel and its development package; the installer prepares the module for
-that kernel. Where `grubby` is available, the previous default boot entry is
-restored after the package transaction. No reboot is performed.
+| Component | Version |
+| --- | --- |
+| Legacy UFX+ USB3 package | `0.1.0~alpha.26+release.1` |
+| Shared RME Linux host/settings | `0.1.0~alpha.26+release.1` |
+| TotalMixLike mixer | `0.2.0~alpha.82+release.1` |
 
-After successful module preparation:
+- Shared multi-interface discovery/ownership and bounded frontend recovery preserve
+  unrelated interfaces, settings and DSP state.
+- Unknown discovery is not treated as disconnection; cached mixer sessions are
+  retained and affected commands remain suspended until identity is validated.
+- Mixer/background-meter handoff cooperates with the existing audio owner.
+  Private event notifications supplement, rather than replace, validated status.
+- ALSA aliases and PipeWire/JACK port labels identify the model, physical I/O
+  and interface consistently. Per-device node preferences remain independent.
+- USB Settings uses immediate controls and model-specific Digital I/O pages.
+  The obsolete tray configuration menu is removed.
+- The mixer includes the native text/vector projection improvements and the
+  common top-menu lifetime correction for device switching.
+- The complete mixer payload includes the matching control helper and
+  manifest-verified shared audio/MIDI runtime, not just a GUI executable.
+
+Exact commits, source inputs, package URLs and SHA256 values are in
+[components.lock.json](components.lock.json). Historical versions remain
+available; there is no automatic update or firmware flashing.
+
+## Devices and current qualification
+
+Development hardware is Fireface UFX+, original Babyface and Digiface Dante.
+Recognition of another profile is not proof of its complete hardware support.
+Corrections are shared where relevant; hardware-specific capabilities are
+not copied between unrelated families.
+
+The software CI uses isolated local Linux VMs for the private component
+repositories. Mint and Fedora archive/lifecycle checks are also run locally
+inside the VM; the public distribution retains its hosted GitHub checks.
+No USB controller or audio interface is passed into a CI VM.
+
+Retained live tests include UFX+ playback, simultaneous existing owners at
+different sample rates, preserved UFX+ links and visible UFX+/Dante mixer
+selection. Package and mock tests do not prove physical hotplug, power-cycle,
+wake recovery or operation of every channel/rate combination. No Dante network
+was connected for the retained tests: external Dante transmission, reception
+and synchronization remain unqualified.
+
+This is an alpha release. Keep a known-good version and avoid unattended use
+in critical sessions. The three source/package/release identities are tracked
+separately from what is currently installed or loaded on a machine.
+
+## Audio, settings and mixer
+
+After installation/module preparation, enable the shared manager for your
+desktop account if it is not already enabled:
 
 ```sh
 systemctl --user enable --now rme-native-devices.service
@@ -82,150 +94,51 @@ rme-driver-panel
 oscmix-ufxplus
 ```
 
-Runtime dependencies are resolved by DNF. Rust, Cargo and GTK development headers
-are not needed to run these release binaries. RPM bundle generation is a separate
-maintainer operation: `python3 tools/build-fedora-bundle.py --output dist-fedora`.
-[Fedora qualification and known limits](docs/fedora-qualification.md) describe
-the exact tested combination, with the previous hardware evidence kept distinct from this joint candidate.
+The settings panel configures the driver; it is not the driver itself.
+PipeWire exposes enabled per-device groups and physical ports to qpwgraph and
+DAWs. ALSA applications use the advertised named aliases; numeric card indices
+are not stable identities. The mixer device selector changes the viewed device,
+not the system audio destination or clock synchronization.
 
-RPM revision `5.fc44` isolates its DKMS operations from Fedora's global
-`post_transaction` hook. It supports DKMS 3.4 (at least 3.4.4) and never changes
-the host framework configuration. The desktop frontend does not need to be in
-an initramfs. Fresh installations leave boot images untouched. An existing
-target image containing an earlier RME module is rebuilt without it in a
-temporary file, checked for dracut errors and missing unrelated modules, then
-replaced atomically. Other kernel images and the default boot choice are kept.
-DKMS operations launched independently by the operating system retain its own
-configured hooks; this package does not repair a kernel provider's configuration.
+Multiple interfaces are independent clock domains unless physically synchronized.
+Their availability in one PipeWire graph is not a claim of an ASIO-style
+hardware-synchronous aggregate. High sample rates change active optical/MADI
+channel counts according to each device's format.
 
-To uninstall, close OSCmix, stop the RME user services, then run
-`./install.sh --uninstall` from the verified suite. Settings are backed up and
-preserved. Final host RPM removal refuses active owners or a busy module,
-cleans DKMS registrations and installed modules for all registered kernels,
-and unloads the idle frontend. RPM upgrades retain the existing registration
-until the explicit preparation step rebuilds it; they do not run removal.
+## Kernel frontend and Fedora
 
-A single download for the experimental RME driver, shared Linux host and
-TotalMixLike. This distribution keeps the two component repositories, service
-names and independent release histories intact.
+The shared ALSA frontend is the small external `snd-rme-pcm` module, built by
+DKMS. Matching headers for the actual running kernel are required. Secure Boot
+policy is not bypassed.
 
-## Experimental three-family bundle
-
-Suite `0.1.0-alpha.5+devices.35` pins two component prereleases and the updated host package:
-
-| Component | Version | Supported package target |
-| --- | --- | --- |
-| UFX+ USB3 driver | `0.1.0~alpha.12+devices.35` | `amd64` Debian package |
-| Shared RME Linux host | `0.1.0~alpha.21+devices.35` | `amd64` Debian package |
-| TotalMixLike | `0.2.0~alpha.67+commands.2` | `amd64` Debian package |
-
-The exact release tags, commits, assets and SHA-256 values are in
-[`components.lock.json`](components.lock.json). The original Debian archive targets
-Linux Mint 22 or Ubuntu 24.04 amd64. Fedora44 uses the separate RPM archive described
-above; its qualification is recorded independently. Other targets remain untested.
-
-The three pinned Debian packages are included under [`vendor/`](vendor/). Their
-driver/mixer checksums match their component releases; the host candidate records its exact source commit, build input and SHA-256. This keeps the public
-bundle build reproducible without granting this repository access to the
-private component source repositories.
-
-## Install
-
-Download and extract the suite archive from the [UFX+ Linux releases](https://github.com/charlysound/UFXPlus-Linux/releases),
-then run:
+Fedora requires the exact kernel-devel package for the selected kernel, including
+the correct provider for custom/T2 kernels. After installation run:
 
 ```sh
-./install.sh
+sudo /usr/libexec/ufxplus-linux/fedora-admin
 ```
 
-The installer verifies every bundled file and all three Debian package identities,
-backs up the current user's driver and OSCmix settings, and installs the three
-packages in one APT transaction. It refuses to upgrade while the driver,
-RME host, MIDI bridge or mixer is running. Quit the mixer and stop the user services
-before retrying. The backup location is printed and recorded in the install
-log under `~/.local/state/ufxplus-linux/`.
+The Fedora adapter keeps the pinned USB access rule and common lifecycle guard.
+It does not change the host's global DKMS configuration. Fresh installation
+leaves boot images untouched; any required removal of an old RME module from
+an existing image uses the checked atomic migration path. No automatic reboot,
+USB reset or firmware update is performed. See
+[Fedora qualification](docs/fedora-qualification.md) for limits.
 
-From a graphical desktop session, package authorization uses `pkexec`; in a
-headless session it uses `sudo` in the terminal.
+## Remove or build
 
-Installation does not start audio services as root. At the end, the installer
-offers to enable and start the shared RME device manager for the current user
-and open the driver panel. Declining leaves service state unchanged. Open
-OSCmix from its desktop launcher; the old UFX+-only companion service remains
-available for installations that deliberately use the legacy UFX+ owner.
+Close the mixer and stop its RME user services, then run
+`./install.sh --uninstall` from the verified archive. Settings are backed up
+and preserved. Active owners or a busy module prevent final removal.
 
-The shared host package builds its `rme-pcm` kernel module through DKMS for the
-running kernel. Matching kernel headers and DKMS must be available before
-installation. Its post-install hook reloads udev rules but does not reset or
-retrigger USB devices. Installing the package does not qualify audio on hardware.
-
-The installer preserves these user data directories when present:
-
-- `$XDG_CONFIG_HOME/ufxplus-driver` and `$XDG_CONFIG_HOME/oscmix`
-- `$XDG_STATE_HOME/oscmix`
-- `$XDG_DATA_HOME/oscmix`
-
-The defaults follow the XDG specification (`~/.config`, `~/.local/state` and
-`~/.local/share`). The backup is a private, user-owned tar archive and is not
-uploaded.
-
-To remove the Mint suite, stop its user services and run `./install.sh --uninstall`.
-The installer backs up settings and removes the three packages in one APT
-transaction. The host's `prerm` refuses a busy module or active runtime, removes
-DKMS registrations before deleting sources, and restores legacy diversions.
-If an older Debian initramfs embeds RME, removal stops with the original image
-and sources retained; migrate that image before retrying. Package-owned DKMS
-calls keep host framework configuration unchanged (DKMS 3.0–3.4).
-
-## Verify or test without installing
-
-From the extracted suite directory:
+The public repository vendors exact DEBs so the suite can be rebuilt without
+access to private source repositories. It never fetches unpinned “latest” inputs.
 
 ```sh
-./install.sh --verify-only
-./install.sh --preflight-only
+./tools/build-bundle.sh dist
+python3 tools/build-fedora-bundle.py --output dist-fedora
 ```
 
-These checks do not install packages, change settings, start services or
-access the UFX+. `--preflight-only` accepts Linux Mint 22.x and Ubuntu
-24.04 on amd64.
-
-## Rollback
-
-Keep the previous suite archive until the new installation has been checked.
-To return to that exact pair, stop the user services and run the previous
-archive's `./install.sh --allow-downgrade`. The option applies only to that
-verified archive: the installer still checks every checksum and package
-identity, saves settings, and installs all three packages in one APT transaction.
-Without the explicit option, the installer refuses to replace a newer installed
-version. The settings backup remains available if an application ever needs
-its previous configuration restored. To remove a first-time installation,
-use APT with the package names shown by `dpkg-query -W ufxplus-driver
-rme-native-host oscmix-ufxplus`; user settings are not removed by package removal.
-
-## Scope and qualification
-
-This is community packaging, not an official RME driver. This experimental
-bundle combines three packages from two component prereleases. CI verifies
-package identities, archive contents and checksums, then exercises real Mint
-installation/upgrade/removal in a container and Fedora RPM transactions in a
-private chroot. Their disposable kernel helpers are fixtures; these checks do
-not qualify boot, Secure Boot or USB audio. The mixer source regression matrix
-runs separately in isolated local Ubuntu 22.04 and 24.04 VMs.
-
-Earlier manual Mint/Ubuntu VM tests and the host20 → host21 Mint VM DKMS/boot
-test retain their documented scope; they do not qualify this exact three-package
-release or physical Babyface, UFX+ and Digiface Dante operation. Current-release
-VM boot and physical checks remain open before normal installation is advised.
-
-The Fedora checks and their limits are documented separately above. Component
-release notes describe their separate qualification and limitations.
-
-Checksums detect accidental corruption; they do not authenticate the publisher.
-Review the source repositories and release notes before installation:
-
-- [RME UFX+ Linux USB3 driver](https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3)
-- [TotalMixLike](https://github.com/charlysound/TotalMixLike)
-
-The component package licenses are included in each suite archive under
-`licenses/`.
+RPM assembly needs Fedora's build tools. See the
+[joint release procedure](docs/joint-release.md), component source repositories
+and their licenses for maintenance and source-build instructions.

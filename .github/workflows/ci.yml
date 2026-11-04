@@ -41,6 +41,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ufxplus-linux-suite
+          retention-days: 1
           path: |
             dist/*.tar.gz
             dist/SHA256SUMS
@@ -116,6 +117,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ufxplus-linux-fedora44
+          retention-days: 1
           path: dist-fedora/*.tar.gz
           if-no-files-found: error
 
