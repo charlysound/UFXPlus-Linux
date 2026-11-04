@@ -1,90 +1,70 @@
-# Joint Mint 22 / Fedora 44 experimental release
+# Joint Mint22 / Fedora44 prerelease
 
-Suite `0.1.0-alpha.5+devices.35` delivers two architecture-specific archives
-under one version. Use the DEB archive on Mint 22.x / Ubuntu 24.04 amd64 and
-the RPM archive on Fedora 44 x86_64. Each includes its installer, exact component
-lock and checksums. The release also has a combined `SHA256SUMS` for both archives.
+Suite `0.1.0-alpha.6+multicard.1` publishes two installable archives under
+one version,with a combined SHA256SUMS. The DEB archive targets Mint22.x and
+Ubuntu24.04 amd64;the RPM archive targets Fedora44 x86_64.
 
-## Shared implementation and source dependency
+## Source and payload contract
 
-The host is `0.1.0~alpha.21+devices.35`; the mixer is
-`0.2.0~alpha.67+commands.2`. The refreshed lock records the immutable component
-tags, commits, asset URLs and checksums. OSCmix includes ARC preamp assignments,
-paired Mic/Inst gain commands, Dynamics Gain 1–4, programmable F4–F8 actions and
-safe USB protocol handover. The software test suite does not qualify physical
-ARC buttons, LEDs, wheel behavior or native executed-pixel parity.
+The driver and shared host packages are alpha26+release.1;TotalMixLike is
+alpha82+release.1. The exact final commits,package versions,asset URLs,
+runtime/control source inputs and hashes belong in `components.lock.json`.
+Do not substitute a package from a different source or a CI-only GUI build.
 
-The UFX+ driver payload remains the established alpha.12 package and the shared
-host is alpha.21; TotalMixLike advances from alpha.51 to alpha.67. Both archives
-contain the same corrected common module C source and model-independent
-owner/busy guards.
-Fedora retains its separate, atomic dracut migration adapter. The common guard
-is maintained in the driver repository; the distribution copy is checked
-against the bytes in the pinned host DEB. Do not edit model-specific copies.
-The mixer includes the audio/MIDI runtime at source `5a8c400` and control
-producer at `fe6f4fe`, retained from the qualified alpha.66 installation.
-The lock records their manifest and binary hashes. Both archive builders
-verify the complete payload before packaging.
-The Fedora RPM keeps the exact USB rule already shipped by the alpha.4 adapter, pinned as
-`packaging/fedora/70-rme-native.rules`; it is not generated from alpha.67's
-passive USB identity catalogue, which carries no permission policy.
+The complete mixer package must contain the common audio/MIDI runtime and
+matching control producer. `tools/verify-mixer-payload.py` checks its source
+identity,ABI,manifest and every packaged runtime file. A host-only install
+does not supply the bundled mixer runtime. Replacing files also does not
+reload already-running services or helpers.
 
-TotalMixLike also fixes deferred Mixer Settings callbacks and temporary-model
-retirement in its menu fixture. The complete 48-case menu fixture passes
-AddressSanitizer; retained controls cannot write or close a replacement window.
-Repeated source checks isolate configuration/state, and the connected-preferences
-fixture keeps external settings untouched while testing child-process persistence.
-Secondary-window scale checks retain the requested owner scale and original
-geometry/tolerance while waiting for GTK allocation.
+The Fedora adapter preserves the pinned USB access rule,the common kernel
+frontend and the shared lifecycle guard. Unknown module source or unexpected
+package overlap is rejected. Kernel preparation is explicit;there is no
+automatic USB reset,firmware update,DSP profile replay or reboot.
 
-## Automated checks
+## Release procedure
 
-- TotalMixLike's private source repository uses local VM runners labelled
-  `ubuntu-22.04` and `ubuntu-24.04` for its unchanged source regression matrix.
-  Both VMs must be running before requesting a check. This avoids paid hosted
-  compute while keeping the repository private and results visible on GitHub.
-  The public distribution repository retains its standard GitHub-hosted CI.
-- The Ubuntu build job constructs the Mint archive and checks installer OS
-  gates (Mint 22, 22.1, 22.2, 22.3; reject 23), backups, rollback authorization,
-  checksums and removal dispatch.
-- A digest-pinned [Mint 22 image](https://hub.docker.com/r/linuxmintd/mint22-amd64)
-  installs Mint's signed `base-files` package from its Mint repository, checks
-  the resulting real os-release and archive preflight, then runs real dpkg
-  fresh candidate installation, a real alpha.51 → alpha.67 upgrade from the
-  checksum-pinned published alpha.4 suite, failed removal and final removal.
-  DKMS is a fixture: this proves hook dispatch, source retention, diversion
-  restoration and settings preservation, not a kernel build or hardware audio.
-- Fedora 44 builds the RPMs, verifies their identity, exercises installation,
-  upgrade and failed/final removal in an isolated RPM chroot. Its kernel helper
-  is inert in that fixture. Unit tests cover image preservation and DKMS hooks.
-- The supporting driver PR compiles the common module against Mint 22's Ubuntu
-  24.04 kernel ABI and Fedora 44 headers, without loading it.
-- Release staging rejects a missing target, corrupt inner checksums, a tag
-  differing from the suite version, different component locks, or archives
-  from another source commit. A failing target prevents release staging.
+1. Review the exact driver/mixer source trees and retained qualifications.
+   Run the offline workflow commands directly in disposable local VMs before
+   any push or workflow request,without USB/audio/home passthrough. Transfer
+   local Git bundles over SSH. Preserve failures and fix their causes;do not
+   weaken numerical,ownership or device-safety assertions.
+2. Build the legacy driver DEB,shared host DEB,complete runtime and mixer DEB
+   from clean committed sources. Keep source archives,build inputs and hashes.
+3. Pin those three packages in the lock and vendor their exact bytes. Source
+   repositories remain private;the distribution can rebuild without private
+   source credentials.
+4. Run installer/unit checks and the real Mint/Fedora package lifecycle checks
+   locally inside isolated VM containers. Public distribution GitHub checks
+   remain hosted,not self-hosted runners exposed to untrusted pull requests.
+5. Verify package identities,hashes,full mixer payload and both archive contents.
+   Review combined integration before updating main without a force push.
+6. Tag the exact published sources. A tag workflow stages a draft;publish only
+   after required checks and downloadable assets have been verified.
+7. Download release assets again,verify checksums,and record publication
+   separately from local installation,activation and hardware qualification.
 
-These container/chroot checks do not qualify boot, Secure Boot, desktop
-interaction or an attached sound card. On 26 October 2026, a disposable Mint 22 Wilma VM (kernel 6.8.0-38-generic,
-no USB/audio passthrough) passed the published host20 → candidate host21 upgrade,
-real DKMS build/install and module load, a refused removal with a simulated
-active runtime, full removal, fresh installation and reboot. DKMS registration,
-package integrity and all four pre-existing XDG sentinels survived as expected.
-The VM was powered off cleanly; the original backing disk was used read-only.
-Evidence is in the development report. This is package/boot qualification in a
-VM, not sound-card qualification. The earlier Fedora hardware qualification
-belongs to RPM `4.fc44`; [its limits](fedora-qualification.md) remain applicable
-and do not imply the new RPM `5.fc44` was installed on that machine.
+## Automated coverage and limits
 
-## Delivery after review
+Mint checks the actual signed Mint base-files package in a digest-pinned Mint22
+image,installer OS gates,settings backups,explicit downgrade authorization,
+corruption rejection,and dpkg installation/upgrade/removal hooks. The upgrade
+baseline is a checksum-pinned previous public suite,read from a verified local
+cache for direct local CI or downloaded by the published workflow.
 
-1. Integrate the supporting driver PR, the TotalMixLike PR and this
-   distribution PR after green checks. Keep each pinned source commit and the
-   package input hashes.
-2. On the reviewed distribution commit, create and push a tag equal to
-   `v` plus `components.lock.json`'s suite version.
-3. The tag workflow builds and tests both targets, then creates one **draft
-   prerelease**, with exactly the two archives and their combined checksum file.
-4. Review the draft's files and qualification notes, then publish it explicitly.
-   Keep the existing alpha.4 assets intact and do not claim stable hardware support.
+Fedora builds native RPMs,checks identities and runs installation/upgrade/
+failed-removal/final-removal in an isolated RPM chroot. Kernel-helper fixtures
+are inert:these checks do not prove a real kernel module build,boot migration
+or audio playback. Retained Fedora hardware evidence is dated separately in
+[fedora-qualification.md](fedora-qualification.md).
 
-No new tag, merge or release publication is required merely to review this PR.
+Component tests include private D-Bus/Xvfb GTK sessions,exact UID/attachment
+and completion guards,shared-runtime tests,and strict USB-boundary mutations.
+The loopback image fixture uses the real nonzero allocation scale and checks
+Cairo status;its exact pixel comparisons are unchanged. Menu scale tests wait
+for allocation with the same expected geometry and tolerance.
+
+No CI VM receives a physical card. Software checks do not establish physical
+hotplug,power-cycle,wake,recovery latency,every channel/rate combination or
+external Dante-network operation. The retained live Linux tests and the current
+installed/loaded versions are distinct from this release's source/artifact CI.

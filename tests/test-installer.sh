@@ -7,6 +7,8 @@ trap 'rm -rf -- "$TMP"' EXIT
 BUNDLE="$TMP/bundle"
 mkdir -p "$BUNDLE/packages" "$BUNDLE/licenses"
 cp "$ROOT/install.sh" "$ROOT/README.md" "$ROOT/components.lock.json" "$BUNDLE/"
+DRIVER_FILE=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["components"]["driver"]["package"]["file"])' "$BUNDLE/components.lock.json")
+HOST_FILE=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["components"]["host"]["package"]["file"])' "$BUNDLE/components.lock.json")
 
 make_deb() {
     local name=$1 version=$2 filename=$3 work="$TMP/$1"
@@ -119,7 +121,7 @@ UFXPLUS_BACKUP_DIR="$TMP/home/backups" UFXPLUS_OS_RELEASE="$TMP/mint-release" \
 DISPLAY= WAYLAND_DISPLAY= \
     "$BUNDLE/install.sh" --allow-downgrade >"$TMP/downgrade-allowed" 2>&1
 grep -Fq -- '--allow-downgrades' "$TMP/apt-args"
-grep -Fq -- 'rme-native-host_0.1.0-alpha.21+devices.35_amd64.deb' "$TMP/apt-args"
+grep -Fq -- "$HOST_FILE" "$TMP/apt-args"
 
 PATH="$FAKE_BIN:$PATH" HOME="$TMP/home" XDG_CONFIG_HOME="$TMP/home/config" \
 XDG_STATE_HOME="$TMP/home/state" XDG_DATA_HOME="$TMP/home/data" \
@@ -128,11 +130,11 @@ DISPLAY= WAYLAND_DISPLAY= "$BUNDLE/install.sh" --uninstall >"$TMP/uninstall" 2>&
 grep -Fq -- 'remove -y oscmix-ufxplus rme-native-host ufxplus-driver' "$TMP/apt-args"
 [[ -f "$TMP/home/config/ufxplus-driver/nodes.json" ]]
 
-cp "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb" "$TMP/driver.deb"
-printf '\ncorruption\n' >>"$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb"
+cp "$BUNDLE/packages/$DRIVER_FILE" "$TMP/driver.deb"
+printf '\ncorruption\n' >>"$BUNDLE/packages/$DRIVER_FILE"
 if "$BUNDLE/install.sh" --verify-only >/dev/null 2>&1; then
     echo "Corrupt package checksum was accepted" >&2; exit 1
 fi
-mv "$TMP/driver.deb" "$BUNDLE/packages/ufxplus-driver_0.1.0-alpha.12+devices.35_amd64.deb"
+mv "$TMP/driver.deb" "$BUNDLE/packages/$DRIVER_FILE"
 
 echo "Installer tests passed (verification, supported OS gate, backup preservation, downgrade opt-in, corruption rejection)."

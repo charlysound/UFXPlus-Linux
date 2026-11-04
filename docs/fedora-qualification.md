@@ -1,5 +1,15 @@
 # Fedora 44 experimental release qualification
 
+## Current suite alpha.6
+
+The current component lock advances the shared host/driver to alpha26 and
+TotalMixLike to alpha82. Archive,package and lifecycle CI results for this
+combination are recorded with the release. No new Fedora hardware qualification
+is inferred from the historical observations below. CI uses isolated VM/container
+environments,with no USB controller passthrough or audible playback.
+
+## Retained historical hardware qualification
+
 Suite `0.1.0-alpha.3+devices.35` provides native Fedora 44 x86_64 RPMs,
 revision `4.fc44`. The component releases remain pinned in
 `components.lock.json`; the audio and GUI ELF payloads are unchanged.
@@ -13,7 +23,7 @@ The installed and exercised adapter source was
 version and documentation, and uses freshly built, checksum-verified assets.
 
 - Fedora 44 x86_64, kernel `7.2.9-310.t2.fc44.x86_64`, external Babyface
-  23314862 (USB `2a39:3fc7`), PipeWire 1.6.7 and SELinux enforcing.
+  (USB `2a39:3fc7`), PipeWire 1.6.7 and SELinux enforcing.
 - Thirteen archive and kernel lifecycle tests passed locally and on Fedora.
 - Real RPM scriptlet install, upgrade, busy-removal refusal and final removal
   passed in a temporary chroot using an inert kernel-helper probe.
