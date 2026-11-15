@@ -1,13 +1,12 @@
 # Joint Mint22 / Fedora44 prerelease
 
-Suite `0.1.0-alpha.6+multicard.1` publishes two installable archives under
-one version,with a combined SHA256SUMS. The DEB archive targets Mint22.x and
-Ubuntu24.04 amd64;the RPM archive targets Fedora44 x86_64.
+Suite `0.1.0-alpha.7+dante.1` publishes two installable archives under
+one version,with a combined SHA256SUMS. The DEB archive targets Mint 22.x amd64. The RPM archive targets Fedora 44 x86_64.
 
 ## Source and payload contract
 
-The driver and shared host packages are alpha26+release.1;TotalMixLike is
-alpha82+release.1. The exact final commits,package versions,asset URLs,
+The driver and shared host packages are alpha.30+dante.1. TotalMixLike is
+alpha.97+dante.1. The exact final commits,package versions,asset URLs,
 runtime/control source inputs and hashes belong in `components.lock.json`.
 Do not substitute a package from a different source or a CI-only GUI build.
 

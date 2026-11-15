@@ -9,8 +9,8 @@ This is an independent project, not an official RME driver or TotalMix release.
 Use the [release assets](https://github.com/charlysound/UFXPlus-Linux/releases),
 not GitHub's automatic source-code archive.
 
-- Linux Mint22.x / Ubuntu24.04 amd64: `*_amd64.tar.gz` (three DEB packages).
-- Fedora44 x86_64: `*_fedora44_x86_64.tar.gz` (three RPM packages).
+- Linux Mint 22.x amd64: `*_amd64.tar.gz` (three DEB packages).
+- Fedora 44 x86_64: `*_fedora44_x86_64.tar.gz` (three RPM packages).
 
 Both archives include an installer, exact component lock, licenses and checksums.
 Extract the appropriate archive, open a terminal inside it and run:
@@ -31,34 +31,26 @@ the mixer and stop the RME user services before an upgrade. This is intentional:
 replacing files does not reload an already-running owner or an app-local runtime.
 Declining optional service startup leaves activation to you.
 
-## What's new in alpha.6
+## What's new in alpha.7
 
-Suite `0.1.0-alpha.6+multicard.1` updates all three pinned components:
+Suite `0.1.0-alpha.7+dante.1` includes one archive for Linux Mint 22.x
+and one for Fedora 44 under the same release.
 
 | Component | Version |
 | --- | --- |
-| Legacy UFX+ USB3 package | `0.1.0~alpha.26+release.1` |
-| Shared RME Linux host/settings | `0.1.0~alpha.26+release.1` |
-| TotalMixLike mixer | `0.2.0~alpha.82+release.1` |
+| Legacy UFX+ USB3 package | `0.1.0~alpha.30+dante.1` |
+| Shared RME Linux host/settings | `0.1.0~alpha.30+dante.1` |
+| TotalMixLike mixer | `0.2.0~alpha.97+dante.1` |
 
-- Shared multi-interface discovery/ownership and bounded frontend recovery preserve
-  unrelated interfaces, settings and DSP state.
-- Unknown discovery is not treated as disconnection; cached mixer sessions are
-  retained and affected commands remain suspended until identity is validated.
-- Mixer/background-meter handoff cooperates with the existing audio owner.
-  Private event notifications supplement, rather than replace, validated status.
-- ALSA aliases and PipeWire/JACK port labels identify the model, physical I/O
-  and interface consistently. Per-device node preferences remain independent.
-- USB Settings uses immediate controls and model-specific Digital I/O pages.
-  The obsolete tray configuration menu is removed.
-- The mixer includes the native text/vector projection improvements and the
-  common top-menu lifetime correction for device switching.
-- The complete mixer payload includes the matching control helper and
-  manifest-verified shared audio/MIDI runtime, not just a GUI executable.
+- Digiface Dante USB Settings follows the native availability rules for the
+  Ethernet mode display, Preferred Leader and Isochronous Transfer.
+- Mixer control waits for the selected current USB attachment on reconnect.
+- Dante USB startup includes the native empty-transfer recovery timing.
+- The mixer package includes the matching shared audio/MIDI runtime and
+  control helper.
 
-Exact commits, source inputs, package URLs and SHA256 values are in
-[components.lock.json](components.lock.json). Historical versions remain
-available; there is no automatic update or firmware flashing.
+`components.lock.json` records the exact source revisions, package versions
+and checksums.
 
 ## Devices and current qualification
 
@@ -75,9 +67,7 @@ No USB controller or audio interface is passed into a CI VM.
 Retained live tests include UFX+ playback, simultaneous existing owners at
 different sample rates, preserved UFX+ links and visible UFX+/Dante mixer
 selection. Package and mock tests do not prove physical hotplug, power-cycle,
-wake recovery or operation of every channel/rate combination. No Dante network
-was connected for the retained tests: external Dante transmission, reception
-and synchronization remain unqualified.
+wake recovery or operation of every channel/rate combination. Subsequent Digiface Dante tests exercised stereo network reception and transmission at 48 kHz. The release CI runs without physical devices.
 
 This is an alpha release. Keep a known-good version and avoid unattended use
 in critical sessions. The three source/package/release identities are tracked

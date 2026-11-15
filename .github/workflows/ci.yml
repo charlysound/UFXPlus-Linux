@@ -147,6 +147,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
+          if gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' > release/existing-assets; then
+            for asset in release/upload/*; do
+              grep -Fx -- "$(basename "$asset")" release/existing-assets
+            done
+            exit 0
+          fi
           gh release create "$RELEASE_TAG" release/upload/* --verify-tag --draft --prerelease \
             --title "UFX+ Linux $RELEASE_TAG — Mint 22 and Fedora 44" \
             --notes-file docs/joint-release.md

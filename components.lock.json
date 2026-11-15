@@ -1,17 +1,13 @@
 {
   "schema_version": 1,
   "suite": {
-    "version": "0.1.0-alpha.6+multicard.1",
+    "version": "0.1.0-alpha.7+dante.1",
     "architecture": "amd64",
     "supported_systems": [
       {
         "id": "linuxmint",
         "version_id": "22",
         "version_pattern": "22 or 22.x"
-      },
-      {
-        "id": "ubuntu",
-        "version_id": "24.04"
       },
       {
         "id": "fedora",
@@ -24,63 +20,58 @@
   "components": {
     "driver": {
       "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
-      "tag": "v0.1.0-alpha.26+release.1",
-      "commit": "7c6408e9f6c6ec5ccb67bb39dc61ce6dc110fbef",
-      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.26%2Brelease.1",
+      "commit": "76788e4451e4ec40acbb43f7cba8556e928aa67f",
+      "release_url": "https://github.com/charlysound/UFXPlus-Linux/releases/tag/v0.1.0-alpha.7%2Bdante.1",
       "package": {
         "name": "ufxplus-driver",
-        "version": "0.1.0~alpha.26+release.1",
+        "version": "0.1.0~alpha.30+dante.1",
         "architecture": "amd64",
-        "file": "ufxplus-driver_0.1.0-alpha.26+release.1_amd64.deb",
-        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.26%2Brelease.1/ufxplus-driver_0.1.0-alpha.26%2Brelease.1_amd64.deb",
-        "sha256": "435130f26f477a8e99f2f96c533e783de997298ab994dde89599c4f5d1ea1483",
-        "copyright_path": "usr/share/doc/ufxplus-driver/copyright"
+        "file": "ufxplus-driver_0.1.0-alpha.30+dante.1_amd64.deb",
+        "asset_url": "https://github.com/charlysound/UFXPlus-Linux/releases/download/v0.1.0-alpha.7%2Bdante.1/ufxplus-linux-suite_0.1.0-alpha.7%2Bdante.1_amd64.tar.gz",
+        "sha256": "2f8fd8e7a124ae94a5f825067e4fe1bfe10a712c7d5d98998c4e763ef5e5fef8",
+        "copyright_path": "usr/share/doc/ufxplus-driver/copyright",
+        "archive_member": "ufxplus-linux-suite/packages/ufxplus-driver_0.1.0-alpha.30+dante.1_amd64.deb"
       }
     },
     "host": {
       "repository": "charlysound/RME-UFX-Plus-Linux-driver-USB3",
-      "tag": "v0.1.0-alpha.26+release.1",
-      "commit": "7c6408e9f6c6ec5ccb67bb39dc61ce6dc110fbef",
-      "release_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/tag/v0.1.0-alpha.26%2Brelease.1",
+      "commit": "76788e4451e4ec40acbb43f7cba8556e928aa67f",
+      "release_url": "https://github.com/charlysound/UFXPlus-Linux/releases/tag/v0.1.0-alpha.7%2Bdante.1",
       "package": {
         "name": "rme-native-host",
-        "version": "0.1.0~alpha.26+release.1",
+        "version": "0.1.0~alpha.30+dante.1",
         "architecture": "amd64",
-        "file": "rme-native-host_0.1.0-alpha.26+release.1_amd64.deb",
-        "asset_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/releases/download/v0.1.0-alpha.26%2Brelease.1/rme-native-host_0.1.0-alpha.26%2Brelease.1_amd64.deb",
-        "sha256": "84f3970b5bc942e40c819db6f071525efeaf5a07b173436d5a2f335208249dec",
-        "copyright_path": "usr/share/doc/rme-native-host/copyright"
+        "file": "rme-native-host_0.1.0-alpha.30+dante.1_amd64.deb",
+        "asset_url": "https://github.com/charlysound/UFXPlus-Linux/releases/download/v0.1.0-alpha.7%2Bdante.1/ufxplus-linux-suite_0.1.0-alpha.7%2Bdante.1_amd64.tar.gz",
+        "sha256": "e939ab16ce87a895111bde835d3e56d19a0e9fcf3637f3b9bb9bfffc02bcf948",
+        "copyright_path": "usr/share/doc/rme-native-host/copyright",
+        "archive_member": "ufxplus-linux-suite/packages/rme-native-host_0.1.0-alpha.30+dante.1_amd64.deb"
       },
-      "source_url": "https://github.com/charlysound/RME-UFX-Plus-Linux-driver-USB3/commit/7c6408e9f6c6ec5ccb67bb39dc61ce6dc110fbef",
-      "provenance": "Built from the same clean alpha26 driver commit; matching graph/naming payload and previously published shared lifecycle guard retained.",
+      "provenance": "Shared Linux host and USB Settings built from the pinned driver commit.",
       "build_inputs": {
-        "rate_binary_sha256": "1eef5d78899605f3f5a63231d717193d6fc1f1a65e42020c7dd4dfa670bff9d4",
+        "rate_binary_sha256": "c32d2664486476f9a1b3ac63a26b6779121dffacf1ec5827769ece2f76baf601",
         "shared_lifecycle_sha256": "43460af1cee72d752c05ba0e187fc8aaf8dcb251546bfa5453b4f335d4297eec"
       }
     },
     "mixer": {
       "repository": "charlysound/TotalMixLike",
-      "tag": "v0.2.0-alpha.82+release.1",
-      "commit": "02ec8e314699df11250b1405e4fca10bce26f59d",
-      "release_url": "https://github.com/charlysound/TotalMixLike/releases/tag/v0.2.0-alpha.82%2Brelease.1",
+      "commit": "2c62ddcfea3c679505689e67bce9099636b541b3",
+      "release_url": "https://github.com/charlysound/UFXPlus-Linux/releases/tag/v0.1.0-alpha.7%2Bdante.1",
       "package": {
         "name": "oscmix-ufxplus",
-        "version": "0.2.0~alpha.82+release.1",
+        "version": "0.2.0~alpha.97+dante.1",
         "architecture": "amd64",
-        "file": "oscmix-ufxplus_0.2.0-alpha.82+release.1_amd64.deb",
-        "asset_url": "https://github.com/charlysound/TotalMixLike/releases/download/v0.2.0-alpha.82%2Brelease.1/oscmix-ufxplus_0.2.0-alpha.82%2Brelease.1_amd64.deb",
-        "sha256": "f8dbd755e306cc9dd1042724b7fd81c0249eba133ff994db28bbaefa865aafdb",
-        "copyright_path": "usr/share/doc/oscmix-ufxplus/LICENSE"
+        "file": "oscmix-ufxplus_0.2.0-alpha.97+dante.1_amd64.deb",
+        "asset_url": "https://github.com/charlysound/UFXPlus-Linux/releases/download/v0.1.0-alpha.7%2Bdante.1/ufxplus-linux-suite_0.1.0-alpha.7%2Bdante.1_amd64.tar.gz",
+        "sha256": "e94c8b6d4f382aec2a3a0bc126e84a0da1616d2ac840291bfbef70f9b73e8457",
+        "copyright_path": "usr/share/doc/oscmix-ufxplus/LICENSE",
+        "archive_member": "ufxplus-linux-suite/packages/oscmix-ufxplus_0.2.0-alpha.97+dante.1_amd64.deb"
       },
       "build_inputs": {
-        "runtime_source_commit": "7c6408e9f6c6ec5ccb67bb39dc61ce6dc110fbef",
-        "runtime_manifest_sha256": "7af94d297e15e155a0b81a21d25fca4cc852c5de6ae28d0791b3be44f892f322",
-        "control_source_commit": "7c6408e9f6c6ec5ccb67bb39dc61ce6dc110fbef",
-        "control_sha256": "4b532a88d2aff2cece1910efeeb498d51ae548546a2a1e2baae6df8a4ddd588b",
-        "runtime_source_archive": "rme-runtime_7c6408e_source.tar.gz",
-        "runtime_source_archive_sha256": "21091becc2a008e07b6a75dc51c4cc3ff10f3622d8de356eec85974af2e7d4b7",
-        "control_source_archive": "rme-control_7c6408e_source.tar.gz",
-        "control_source_archive_sha256": "0e16f110241e776074f5a008ab933bff9368d2b1ee0f9b518960df0a4fdfdc21"
+        "runtime_source_commit": "76788e4451e4ec40acbb43f7cba8556e928aa67f",
+        "runtime_manifest_sha256": "18632e608ac8fb45e7fed2a543400705ff9048ead34ce7ef3c061f047048eea1",
+        "control_source_commit": "76788e4451e4ec40acbb43f7cba8556e928aa67f",
+        "control_sha256": "0184475401b4c84f53f7f335672bf2d01d3c82f34ac276e8e7a3054eacc7f43e"
       }
     }
   }
